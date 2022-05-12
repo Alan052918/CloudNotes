@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  note-db:
+    image: mysql:oracle
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: notes
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    volumes:
+      - note-db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  note-db:
