@@ -1,12 +1,12 @@
 package com.jundaai.note.service;
 
-import com.jundaai.note.exception.*;
+import com.jundaai.note.exception.FolderNameConflictException;
+import com.jundaai.note.exception.FolderNotFoundException;
+import com.jundaai.note.exception.RootDeletionException;
 import com.jundaai.note.form.FolderCreationForm;
 import com.jundaai.note.form.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
-import com.jundaai.note.model.Note;
 import com.jundaai.note.repository.FolderRepository;
-import com.jundaai.note.repository.NoteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,10 @@ import java.util.Objects;
 public class FolderService {
 
     private final FolderRepository folderRepository;
-    private final NoteRepository noteRepository;
 
     @Autowired
-    public FolderService(FolderRepository folderRepository, NoteRepository noteRepository) {
+    public FolderService(FolderRepository folderRepository) {
         this.folderRepository = folderRepository;
-        this.noteRepository = noteRepository;
     }
 
     public List<Folder> getAllFolders() {
@@ -49,6 +47,7 @@ public class FolderService {
     @Transactional
     public Folder createFolderByParentId(Long parentId, FolderCreationForm folderCreationForm) {
         log.info("Create new folder: {}, parent folder id: {}", folderCreationForm, parentId);
+
         String folderName = folderCreationForm.name();
         if (folderName == null) {
             throw new IllegalArgumentException("Folder name cannot be null.");
@@ -56,10 +55,15 @@ public class FolderService {
         if (Objects.equals(folderName, "root")) {
             throw new IllegalArgumentException("Folder name cannot be 'root', reserved for root folder.");
         }
+
         Folder parent = folderRepository.findById(parentId)
                 .orElseThrow(() -> new FolderNotFoundException(parentId));
-        ZonedDateTime now = ZonedDateTime.now();
+        boolean nameConflicted = folderRepository.existsByNameWithSameParent(folderName, parent);
+        if (nameConflicted) {
+            throw new FolderNameConflictException(folderName);
+        }
 
+        ZonedDateTime now = ZonedDateTime.now();
         Folder folder = Folder.builder()
                 .name(folderName)
                 .createdAt(now)
@@ -90,61 +94,33 @@ public class FolderService {
         if (newName != null && newName.length() > 0 && !Objects.equals(newName, folder.getName())) {
             boolean nameConflicted = folderRepository.existsByNameWithSameParent(newName, folder.getParentFolder());
             if (nameConflicted) {
-                throw new FolderNameConlictException(newName);
+                throw new FolderNameConflictException(newName);
             }
             folder.setName(newName);
             isUpdated = true;
             log.info("New folder name: {}", newName);
         }
 
-        Folder addSubFolder = updateForm.addSubFolder();
-        if (addSubFolder != null) {
-            if (addSubFolder.getParentFolder() != null && !Objects.equals(addSubFolder.getParentFolder(), folder)) {
-                throw new FolderMultipleParentException(addSubFolder.getId());
-            }
-            List<Folder> subFolders = folder.getSubFolders();
-            subFolders.add(addSubFolder);
-            folder.setSubFolders(subFolders);
-            isUpdated = true;
-            log.info("Add new sub-folder: {}", addSubFolder);
-        }
-
-        Folder deleteSubFolder = updateForm.deleteSubFolder();
-        if (deleteSubFolder != null) {
-            boolean existsById = folderRepository.existsById(deleteSubFolder.getId());
+        Folder toParent = updateForm.moveToParent();
+        Folder fromParent = folder.getParentFolder();
+        if (toParent != null && !Objects.equals(toParent, folder)) {
+            boolean existsById = folderRepository.existsById(toParent.getId());
             if (!existsById) {
-                throw new FolderNotFoundException(deleteSubFolder.getId());
+                throw new FolderNotFoundException(toParent.getId());
             }
-            List<Folder> subFolders = folder.getSubFolders();
-            subFolders.remove(deleteSubFolder);
-            folder.setSubFolders(subFolders);
-            isUpdated = true;
-            log.info("Delete sub-folder: {}", deleteSubFolder);
-        }
+            if (!Objects.equals(toParent, fromParent)) {
+                folder.setParentFolder(toParent);
 
-        Note addNote = updateForm.addNote();
-        if (addNote != null) {
-            if (addNote.getFolder() != null && !Objects.equals(addNote.getFolder(), folder)) {
-                throw new NoteMultipleFolderException(addNote.getId());
-            }
-            List<Note> notes = folder.getNotes();
-            notes.add(addNote);
-            folder.setNotes(notes);
-            isUpdated = true;
-            log.info("Add note: {}", addNote);
-        }
+                List<Folder> fromParentSubFolders = fromParent.getSubFolders();
+                fromParentSubFolders.remove(folder);
+                fromParent.setSubFolders(fromParentSubFolders);
 
-        Note deleteNode = updateForm.deleteNote();
-        if (deleteNode != null) {
-            boolean existsById = noteRepository.existsById(deleteNode.getId());
-            if (!existsById) {
-                throw new NoteNotFoundException(deleteNode.getId());
+                List<Folder> toParentSubFolders = toParent.getSubFolders();
+                toParentSubFolders.add(folder);
+                toParent.setSubFolders(toParentSubFolders);
+
+                isUpdated = true;
             }
-            List<Note> notes = folder.getNotes();
-            notes.remove(deleteNode);
-            folder.setNotes(notes);
-            isUpdated = true;
-            log.info("Delete note: {}", deleteNode);
         }
 
         if (isUpdated) {
@@ -160,7 +136,7 @@ public class FolderService {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         if (Objects.equals(folder.getName(), "root")) {
-            throw new ForbiddenOperationException("Root folder cannot be deleted.");
+            throw new RootDeletionException();
         }
 
         Folder parent = folder.getParentFolder();
