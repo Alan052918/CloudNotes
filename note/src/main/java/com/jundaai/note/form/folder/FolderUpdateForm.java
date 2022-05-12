@@ -1,4 +1,4 @@
-package com.jundaai.note.form.create;
+package com.jundaai.note.form.folder;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,12 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public final class FolderCreationForm {
+public final class FolderUpdateForm {
 
     @NotBlank
-    private String name;
+    private String updateType;
+
+    private String newName;
+    private Long toParentId;
 
 }

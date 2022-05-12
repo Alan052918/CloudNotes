@@ -1,4 +1,4 @@
-package com.jundaai.note.form.update;
+package com.jundaai.note.form.folder;
 
 public interface FolderUpdateType {
 

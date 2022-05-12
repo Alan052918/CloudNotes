@@ -1,7 +1,7 @@
 package com.jundaai.note.controller;
 
-import com.jundaai.note.form.create.FolderCreationForm;
-import com.jundaai.note.form.update.FolderUpdateForm;
+import com.jundaai.note.form.folder.FolderCreationForm;
+import com.jundaai.note.form.folder.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.assembler.FolderModelAssembler;
 import com.jundaai.note.service.FolderService;
