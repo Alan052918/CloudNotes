@@ -3,13 +3,16 @@ package com.jundaai.note.service;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.NoteNameConflictException;
 import com.jundaai.note.exception.NoteNotFoundException;
-import com.jundaai.note.form.FolderUpdateForm;
-import com.jundaai.note.form.NoteCreationForm;
-import com.jundaai.note.form.NoteUpdateForm;
+import com.jundaai.note.exception.TagNotFoundException;
+import com.jundaai.note.form.create.NoteCreationForm;
+import com.jundaai.note.form.update.NoteUpdateForm;
+import com.jundaai.note.form.update.NoteUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
+import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.FolderRepository;
 import com.jundaai.note.repository.NoteRepository;
+import com.jundaai.note.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,11 +28,13 @@ public class NoteService {
 
     private final FolderRepository folderRepository;
     private final NoteRepository noteRepository;
+    private final TagRepository tagRepository;
 
     @Autowired
-    public NoteService(FolderRepository folderRepository, NoteRepository noteRepository) {
+    public NoteService(FolderRepository folderRepository, NoteRepository noteRepository, TagRepository tagRepository) {
         this.folderRepository = folderRepository;
         this.noteRepository = noteRepository;
+        this.tagRepository = tagRepository;
     }
 
     public List<Note> getAllNotes() {
@@ -52,11 +57,7 @@ public class NoteService {
     public Note createNoteByFolderId(Long folderId, NoteCreationForm creationForm) {
         log.info("Create new note: {}, folder id: {}", creationForm, folderId);
 
-        String noteName = creationForm.name();
-        if (noteName == null) {
-            throw new IllegalArgumentException("Note name cannot be null.");
-        }
-
+        String noteName = creationForm.getName();
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         boolean nameConflicted = noteRepository.existsByNameWithSameFolder(noteName, folder);
@@ -66,7 +67,7 @@ public class NoteService {
 
         ZonedDateTime now = ZonedDateTime.now();
         Note note = Note.builder()
-                .name(creationForm.name())
+                .name(noteName)
                 .createdAt(now)
                 .updatedAt(now)
                 .folder(folder)
@@ -89,44 +90,73 @@ public class NoteService {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
 
-        String newName = updateForm.newName();
-        if (newName != null && newName.length() > 0 && !Objects.equals(newName, note.getName())) {
-            boolean nameConflicted = noteRepository.existsByNameWithSameFolder(newName, note.getFolder());
-            if (nameConflicted) {
-                throw new NoteNameConflictException(newName);
+        switch (updateForm.getUpdateType()) {
+            case NoteUpdateType.RENAME_NOTE -> {
+                String newName = updateForm.getNewName();
+                boolean nameConflicted = noteRepository.existsByNameWithSameFolder(newName, note.getFolder());
+                if (nameConflicted) {
+                    throw new NoteNameConflictException(newName);
+                }
+                note.setName(newName);
+                isUpdated = true;
             }
-            note.setName(newName);
-            isUpdated = true;
-        }
-
-        String newContent = updateForm.newContent();
-        if (newContent != null && newContent.length() > 0 && !Objects.equals(newContent, note.getContent())) {
-            note.setContent(newContent);
-            isUpdated = true;
-        }
-
-        Long toFolderId = updateForm.toFolderId();
-        Folder toFolder = folderRepository.findById(toFolderId)
-                .orElseThrow(() -> new FolderNotFoundException(toFolderId));
-        Folder fromFolder = note.getFolder();
-        if (toFolder != null) {
-            boolean existsById = folderRepository.existsById(toFolder.getId());
-            if (!existsById) {
-                throw new FolderNotFoundException(toFolder.getId());
+            case NoteUpdateType.MODIFY_CONTENT -> {
+                String newContent = updateForm.getNewContent();
+                if (!Objects.equals(newContent, note.getContent())) {
+                    note.setContent(newContent);
+                    isUpdated = true;
+                }
             }
-            if (!Objects.equals(toFolder, fromFolder)) {
-                note.setFolder(toFolder);
+            case NoteUpdateType.MOVE_NOTE -> {
+                Long toFolderId = updateForm.getToFolderId();
+                Folder toFolder = folderRepository.findById(toFolderId)
+                        .orElseThrow(() -> new FolderNotFoundException(toFolderId));
+                Folder fromFolder = note.getFolder();
+                if (toFolder != null && !Objects.equals(toFolder, fromFolder)) {
+                    note.setFolder(toFolder);
 
-                List<Note> fromFolderNotes = fromFolder.getNotes();
-                fromFolderNotes.remove(note);
-                fromFolder.setNotes(fromFolderNotes);
+                    List<Note> fromFolderNotes = fromFolder.getNotes();
+                    fromFolderNotes.remove(note);
+                    fromFolder.setNotes(fromFolderNotes);
 
-                List<Note> toFolderNotes = toFolder.getNotes();
-                toFolderNotes.add(note);
-                toFolder.setNotes(toFolderNotes);
+                    List<Note> toFolderNotes = toFolder.getNotes();
+                    toFolderNotes.add(note);
+                    toFolder.setNotes(toFolderNotes);
+
+                    isUpdated = true;
+                }
+            }
+            case NoteUpdateType.ADD_TAG -> {
+                Long tagId = updateForm.getTagId();
+                Tag tag = tagRepository.findById(tagId)
+                        .orElseThrow(() -> new TagNotFoundException(tagId));
+
+                List<Note> tagNotes = tag.getNotes();
+                tagNotes.add(note);
+                tag.setNotes(tagNotes);
+
+                List<Tag> noteTags = note.getTags();
+                noteTags.add(tag);
+                note.setTags(noteTags);
 
                 isUpdated = true;
             }
+            case NoteUpdateType.REMOVE_TAG -> {
+                Long tagId = updateForm.getTagId();
+                Tag tag = tagRepository.findById(tagId)
+                        .orElseThrow(() -> new TagNotFoundException(tagId));
+
+                List<Note> tagNotes = tag.getNotes();
+                tagNotes.remove(note);
+                tag.setNotes(tagNotes);
+
+                List<Tag> noteTags = note.getTags();
+                noteTags.remove(tag);
+                note.setTags(noteTags);
+
+                isUpdated = true;
+            }
+            default -> throw new IllegalArgumentException("Unsupported note update type.");
         }
 
         if (isUpdated) {
