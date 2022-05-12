@@ -1,7 +1,7 @@
 package com.jundaai.note.controller;
 
-import com.jundaai.note.form.FolderCreationForm;
-import com.jundaai.note.form.FolderUpdateForm;
+import com.jundaai.note.form.create.FolderCreationForm;
+import com.jundaai.note.form.update.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.assembler.FolderModelAssembler;
 import com.jundaai.note.service.FolderService;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -53,7 +54,7 @@ public class FolderController {
     @PostMapping(path = "{folderId}/subFolders")
     @ResponseStatus(HttpStatus.CREATED)
     public EntityModel<Folder> createFolderByParentId(@PathVariable(name = "folderId") Long parentId,
-                                            @RequestBody FolderCreationForm creationForm) {
+                                                      @Valid @RequestBody FolderCreationForm creationForm) {
         log.info("Request to create new folder: {}, parent folder id: {}", creationForm, parentId);
         Folder folder = folderService.createFolderByParentId(parentId, creationForm);
         return folderModelAssembler.toModel(folder);
@@ -61,7 +62,7 @@ public class FolderController {
 
     @PatchMapping(path = "{folderId}")
     public EntityModel<Folder> updateFolderById(@PathVariable(name = "folderId") Long folderId,
-                                                @RequestBody FolderUpdateForm updateForm) {
+                                                @Valid @RequestBody FolderUpdateForm updateForm) {
         log.info("Request to update folder by id: {}, form: {}", folderId, updateForm);
         Folder folder = folderService.updateFolderById(folderId, updateForm);
         return folderModelAssembler.toModel(folder);

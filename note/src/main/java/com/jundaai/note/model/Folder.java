@@ -1,9 +1,11 @@
 package com.jundaai.note.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -25,8 +27,13 @@ public class Folder {
     )
     private Long id;
 
+    @NotBlank
     private String name;
+
+    @NotNull
     private ZonedDateTime createdAt;
+
+    @NotNull
     private ZonedDateTime updatedAt;
 
     @ManyToOne
