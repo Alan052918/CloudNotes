@@ -1,20 +1,20 @@
 package com.jundaai.note.controller;
 
-import com.jundaai.note.form.FolderUpdateForm;
-import com.jundaai.note.form.NoteCreationForm;
-import com.jundaai.note.form.NoteUpdateForm;
+import com.jundaai.note.form.create.NoteCreationForm;
+import com.jundaai.note.form.update.NoteUpdateForm;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
-import com.jundaai.note.service.FolderService;
 import com.jundaai.note.service.NoteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -55,7 +55,7 @@ public class NoteController {
     @PostMapping(path = "folders/{folderId}/notes")
     @ResponseStatus(HttpStatus.CREATED)
     public EntityModel<Note> createNoteByFolderId(@PathVariable(name = "folderId") Long folderId,
-                                                  @RequestBody NoteCreationForm creationForm) {
+                                                  @Valid @RequestBody NoteCreationForm creationForm) {
         log.info("Request to create new note: {}, folder id: {}", creationForm, folderId);
         Note note = noteService.createNoteByFolderId(folderId, creationForm);
         return noteModelAssembler.toModel(note);
@@ -63,7 +63,7 @@ public class NoteController {
 
     @PatchMapping(path = "notes/{noteId}")
     public EntityModel<Note> updateNoteById(@PathVariable(name = "noteId") Long noteId,
-                                            @RequestBody NoteUpdateForm updateForm) {
+                                            @Valid @RequestBody NoteUpdateForm updateForm) {
         log.info("Request to update note by id: {}, form: {}", noteId, updateForm);
         Note note = noteService.updateNoteById(noteId, updateForm);
         return noteModelAssembler.toModel(note);
