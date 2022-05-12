@@ -49,7 +49,10 @@ public class Note {
     @JsonIgnoreProperties(value = {"parentFolder", "subFolders", "notes"})
     private Folder folder;
 
-    @ManyToMany
+    @ManyToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER
+    )
     @JoinTable(
             name = "note_tag",
             joinColumns = @JoinColumn(

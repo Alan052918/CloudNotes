@@ -1,7 +1,6 @@
 package com.jundaai.note.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
 import lombok.*;
 
@@ -11,6 +10,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
+//@Table(
+//        uniqueConstraints = {
+//                @UniqueConstraint(columnNames = {"name"})
+//        }
+//)
 @Data
 @Builder
 @NoArgsConstructor
@@ -37,17 +41,10 @@ public class Tag {
     @NotNull
     private ZonedDateTime updatedAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "note_tag",
-            joinColumns = @JoinColumn(
-                    name = "tag_id",
-                    referencedColumnName = "id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "note_id",
-                    referencedColumnName = "id"
-            )
+    @ManyToMany(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            mappedBy = "tags"
     )
     @ToString.Exclude
     @JsonIgnore
