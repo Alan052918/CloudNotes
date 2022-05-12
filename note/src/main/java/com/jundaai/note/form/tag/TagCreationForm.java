@@ -1,4 +1,4 @@
-package com.jundaai.note.form.update;
+package com.jundaai.note.form.tag;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,9 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public final class TagUpdateForm {
+public final class TagCreationForm {
 
     @NotBlank
-    private String newName;
+    private String name;
 
 }

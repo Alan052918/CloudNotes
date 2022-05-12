@@ -2,8 +2,8 @@ package com.jundaai.note.service;
 
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.create.TagCreationForm;
-import com.jundaai.note.form.update.TagUpdateForm;
+import com.jundaai.note.form.tag.TagCreationForm;
+import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;

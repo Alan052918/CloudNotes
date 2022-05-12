@@ -1,7 +1,7 @@
 package com.jundaai.note.controller;
 
-import com.jundaai.note.form.create.TagCreationForm;
-import com.jundaai.note.form.update.TagUpdateForm;
+import com.jundaai.note.form.tag.TagCreationForm;
+import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.model.assembler.TagModelAssembler;
 import com.jundaai.note.service.TagService;
