@@ -2,8 +2,6 @@ package com.jundaai.note.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
