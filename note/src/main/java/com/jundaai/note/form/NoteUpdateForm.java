@@ -4,5 +4,5 @@ import com.jundaai.note.model.Folder;
 
 public record NoteUpdateForm(String newName,
                              String newContent,
-                             Folder moveToFolder) {
+                             Long toFolderId) {
 }

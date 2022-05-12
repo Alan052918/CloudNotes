@@ -98,10 +98,11 @@ public class FolderService {
             }
             folder.setName(newName);
             isUpdated = true;
-            log.info("New folder name: {}", newName);
         }
 
-        Folder toParent = updateForm.moveToParent();
+        Long toParentId = updateForm.toParentId();
+        Folder toParent = folderRepository.findById(toParentId)
+                .orElseThrow(() -> new FolderNotFoundException(toParentId));
         Folder fromParent = folder.getParentFolder();
         if (toParent != null && !Objects.equals(toParent, folder)) {
             boolean existsById = folderRepository.existsById(toParent.getId());

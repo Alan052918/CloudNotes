@@ -82,7 +82,6 @@ public class NoteService {
         return note;
     }
 
-
     @Transactional
     public Note updateNoteById(Long noteId, NoteUpdateForm updateForm) {
         log.info("Update note by id: {}, form: {}", noteId, updateForm);
@@ -92,6 +91,10 @@ public class NoteService {
 
         String newName = updateForm.newName();
         if (newName != null && newName.length() > 0 && !Objects.equals(newName, note.getName())) {
+            boolean nameConflicted = noteRepository.existsByNameWithSameFolder(newName, note.getFolder());
+            if (nameConflicted) {
+                throw new NoteNameConflictException(newName);
+            }
             note.setName(newName);
             isUpdated = true;
         }
@@ -102,7 +105,9 @@ public class NoteService {
             isUpdated = true;
         }
 
-        Folder toFolder = updateForm.moveToFolder();
+        Long toFolderId = updateForm.toFolderId();
+        Folder toFolder = folderRepository.findById(toFolderId)
+                .orElseThrow(() -> new FolderNotFoundException(toFolderId));
         Folder fromFolder = note.getFolder();
         if (toFolder != null) {
             boolean existsById = folderRepository.existsById(toFolder.getId());
@@ -133,7 +138,7 @@ public class NoteService {
         return noteRepository.save(note);
     }
 
-
+    @Transactional
     public void deleteNoteById(Long noteId) {
         log.info("Delete note by id: {}", noteId);
         Note note = noteRepository.findById(noteId)
