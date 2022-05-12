@@ -5,6 +5,11 @@ A REST API for note storage built with Spring Boot.
 - [CloudNotes](#cloudnotes)
   - [Model](#model)
   - [Custom Exceptions](#custom-exceptions)
+    - [FolderNameConflictException](#foldernameconflictexception)
+    - [FolderNotFoundException](#foldernotfoundexception)
+    - [NoteNameConflictException](#notenameconflictexception)
+    - [NoteNotFoundException](#notenotfoundexception)
+    - [RootDeletionException](#rootdeletionexception)
   - [API](#api)
     - [/api/v1/folders](#apiv1folders)
     - [api/v1/folders/{folderId}](#apiv1foldersfolderid)
@@ -33,21 +38,30 @@ A REST API for note storage built with Spring Boot.
 
 ## Custom Exceptions
 
-- FolderNameConflictException
-  - Description: disallow two sub-folders under the same parent folder share the same name
-  - Response status code: `409 CONFLICT`
-- FolderNotFoundException
-  - Description: no folder by the given id found in database
-  - Response status code: `404 NOT FOUND`
-- NoteNameConflictException
-  - Description: disallow two notes under the same folder share the same name
-  - Response status code: `409 CONFLICT`
-- NoteNotFoundException
-  - Description: no note by the given id found in database
-  - Response status code: `404 NOT FOUND`
-- RootDeletionException
-  - Description: disallow deleting the root folder (named 'root', ancester of all folders and notes)
-  - Response status code: `400 BAD REQUEST`
+### FolderNameConflictException
+
+- Description: disallow two sub-folders under the same parent folder share the same name
+- Response status code: `409 CONFLICT`
+
+### FolderNotFoundException
+
+- Description: no folder by the given id found in database
+- Response status code: `404 NOT FOUND`
+
+### NoteNameConflictException
+
+- Description: disallow two notes under the same folder share the same name
+- Response status code: `409 CONFLICT`
+
+### NoteNotFoundException
+
+- Description: no note by the given id found in database
+- Response status code: `404 NOT FOUND`
+
+### RootDeletionException
+
+- Description: disallow deleting the root folder (named 'root', ancester of all folders and notes)
+- Response status code: `400 BAD REQUEST`
 
 ## API
 
@@ -63,21 +77,21 @@ A REST API for note storage built with Spring Boot.
   - Description: get the folder by id 'folderId'
   - Success status code: `200 OK`
   - Exceptions:
-    - FolderNotFoundException
+    - [FolderNotFoundException](#foldernotfoundexception)
 - PATCH request
   - Description: update the folder by id 'folderId'
     - Rename folder
     - Move to another parent folder
   - Success status code: `200 OK`
   - Exceptions:
-    - FolderNotFoundException
-    - FolderNameConflictException
+    - [FolderNotFoundException](#foldernotfoundexception)
+    - [FolderNameConflictException](#foldernameconflictexception)
 - DELETE request
   - Description: delete the folder by id 'folderId'
   - Success status code: `204 NO CONTENT`
   - Exceptions:
-    - FolderNotFoundException
-    - RootDeletionException
+    - [FolderNotFoundException](#foldernotfoundexception)
+    - [RootDeletionException](#rootdeletionexception)
 
 ### api/v1/folders/{folderId}/subFolders
 
@@ -85,13 +99,13 @@ A REST API for note storage built with Spring Boot.
   - Description: get all sub-folders under the folder by id 'folderId'
   - Success status code: `200 OK`
   - Exceptions:
-    - FolderNotFoundException
+    - [FolderNotFoundException](#foldernotfoundexception)
 - POST request
   - Description: Create a new folder under the parent folder by id 'folderId'
   - Success status code: `201 CREATED`
   - Exceptions:
-    - FolderNotFoundException
-    - FolderNameConflictException
+    - [FolderNotFoundException](#foldernotfoundexception)
+    - [FolderNameConflictException](#foldernameconflictexception)
 
 ### api/v1/folders/{folderId}/notes
 
@@ -99,13 +113,13 @@ A REST API for note storage built with Spring Boot.
   - Description: get all notes under the folder by id 'folderId'
   - Success status code: `200 OK`
   - Exceptions:
-    - FolderNotFoundException
+    - [FolderNotFoundException](#foldernotfoundexception)
 - POST request
   - Description: Create a note under the folder by id 'folderId'
   - Success status code: `201 CREATED`
   - Exceptions:
-    - FolderNotFoundException
-    - NoteNameConflictException
+    - [FolderNotFoundException](#foldernotfoundexception)
+    - [NoteNameConflictException](#notenameconflictexception)
 
 ### api/v1/notes
 
@@ -119,7 +133,7 @@ A REST API for note storage built with Spring Boot.
   - Description: get the note by id 'noteId'
   - Success status code: `200 OK`
   - Exceptions:
-    - NoteNotFoundException
+    - [NoteNotFoundException](#notenotfoundexception)
 - PATCH request
   - Description: update the note by id 'noteId'
     - Rename note
@@ -127,10 +141,10 @@ A REST API for note storage built with Spring Boot.
     - Move to another folder
   - Success status code: `200 OK`
   - Exceptions:
-    - NoteNotFoundException
-    - FolderNotFoundException
+    - [NoteNotFoundException](#notenotfoundexception)
+    - [FolderNotFoundException](#foldernotfoundexception)
 - DELETE request
   - Description: delete the note by id 'noteId'
   - Success status code: `204 NO CONTENT`
   - Exceptions:
-    - NoteNotFoundException
+    - [NoteNotFoundException](#notenotfoundexception)
