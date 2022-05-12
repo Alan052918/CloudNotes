@@ -11,7 +11,7 @@ A REST API for note storage built with Spring Boot.
     - [NoteNotFoundException](#notenotfoundexception)
     - [RootDeletionException](#rootdeletionexception)
   - [API](#api)
-    - [/api/v1/folders](#apiv1folders)
+    - [api/v1/folders](#apiv1folders)
     - [api/v1/folders/{folderId}](#apiv1foldersfolderid)
     - [api/v1/folders/{folderId}/subFolders](#apiv1foldersfolderidsubfolders)
     - [api/v1/folders/{folderId}/notes](#apiv1foldersfolderidnotes)
@@ -65,7 +65,7 @@ A REST API for note storage built with Spring Boot.
 
 ## API
 
-### /api/v1/folders
+### api/v1/folders
 
 - GET request
   - Description: get all folders
