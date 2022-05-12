@@ -1,9 +1,6 @@
 package com.jundaai.note.service;
 
-import com.jundaai.note.exception.FolderNotFoundException;
-import com.jundaai.note.exception.NoteNameConflictException;
-import com.jundaai.note.exception.NoteNotFoundException;
-import com.jundaai.note.exception.TagNotFoundException;
+import com.jundaai.note.exception.*;
 import com.jundaai.note.form.note.NoteCreationForm;
 import com.jundaai.note.form.note.NoteUpdateForm;
 import com.jundaai.note.form.note.NoteUpdateType;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,9 +66,11 @@ public class NoteService {
         ZonedDateTime now = ZonedDateTime.now();
         Note note = Note.builder()
                 .name(noteName)
+                .content("")
                 .createdAt(now)
                 .updatedAt(now)
                 .folder(folder)
+                .tags(new ArrayList<>())
                 .build();
         note = noteRepository.save(note);
 
@@ -123,6 +123,8 @@ public class NoteService {
                     toFolderNotes.add(note);
                     toFolder.setNotes(toFolderNotes);
 
+                    folderRepository.save(fromFolder);
+                    folderRepository.save(toFolder);
                     isUpdated = true;
                 }
             }
@@ -130,6 +132,9 @@ public class NoteService {
                 Long tagId = updateForm.getTagId();
                 Tag tag = tagRepository.findById(tagId)
                         .orElseThrow(() -> new TagNotFoundException(tagId));
+                if (note.getTags().contains(tag)) {
+                    break;
+                }
 
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.add(note);
@@ -139,12 +144,16 @@ public class NoteService {
                 noteTags.add(tag);
                 note.setTags(noteTags);
 
+                tagRepository.save(tag);
                 isUpdated = true;
             }
             case NoteUpdateType.REMOVE_TAG -> {
                 Long tagId = updateForm.getTagId();
                 Tag tag = tagRepository.findById(tagId)
                         .orElseThrow(() -> new TagNotFoundException(tagId));
+                if (!note.getTags().contains(tag)) {
+                    throw new BadRequestException("Note " + note + " has no tag " + tag);
+                }
 
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.remove(note);
@@ -154,6 +163,7 @@ public class NoteService {
                 noteTags.remove(tag);
                 note.setTags(noteTags);
 
+                tagRepository.save(tag);
                 isUpdated = true;
             }
             default -> throw new IllegalArgumentException("Unsupported note update type.");

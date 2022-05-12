@@ -114,6 +114,8 @@ public class FolderService {
                     toParentSubFolders.add(folder);
                     toParent.setSubFolders(toParentSubFolders);
 
+                    folderRepository.save(fromParent);
+                    folderRepository.save(toParent);
                     isUpdated = true;
                 }
             }
