@@ -1,6 +1,7 @@
 package com.jundaai.note.service;
 
 import com.jundaai.note.exception.FolderNotFoundException;
+import com.jundaai.note.exception.NoteNameConflictException;
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.form.FolderUpdateForm;
 import com.jundaai.note.form.NoteCreationForm;
@@ -50,10 +51,20 @@ public class NoteService {
     @Transactional
     public Note createNoteByFolderId(Long folderId, NoteCreationForm creationForm) {
         log.info("Create new note: {}, folder id: {}", creationForm, folderId);
-        ZonedDateTime now = ZonedDateTime.now();
+
+        String noteName = creationForm.name();
+        if (noteName == null) {
+            throw new IllegalArgumentException("Note name cannot be null.");
+        }
+
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
+        boolean nameConflicted = noteRepository.existsByNameWithSameFolder(noteName, folder);
+        if (nameConflicted) {
+            throw new NoteNameConflictException(noteName);
+        }
 
+        ZonedDateTime now = ZonedDateTime.now();
         Note note = Note.builder()
                 .name(creationForm.name())
                 .createdAt(now)
@@ -91,14 +102,24 @@ public class NoteService {
             isUpdated = true;
         }
 
-        Folder moveToFolder = updateForm.moveToFolder();
-        if (moveToFolder != null) {
-            boolean existsById = folderRepository.existsById(moveToFolder.getId());
+        Folder toFolder = updateForm.moveToFolder();
+        Folder fromFolder = note.getFolder();
+        if (toFolder != null) {
+            boolean existsById = folderRepository.existsById(toFolder.getId());
             if (!existsById) {
-                throw new FolderNotFoundException(moveToFolder.getId());
+                throw new FolderNotFoundException(toFolder.getId());
             }
-            if (!Objects.equals(moveToFolder, note.getFolder())) {
-                note.setFolder(moveToFolder);
+            if (!Objects.equals(toFolder, fromFolder)) {
+                note.setFolder(toFolder);
+
+                List<Note> fromFolderNotes = fromFolder.getNotes();
+                fromFolderNotes.remove(note);
+                fromFolder.setNotes(fromFolderNotes);
+
+                List<Note> toFolderNotes = toFolder.getNotes();
+                toFolderNotes.add(note);
+                toFolder.setNotes(toFolderNotes);
+
                 isUpdated = true;
             }
         }
