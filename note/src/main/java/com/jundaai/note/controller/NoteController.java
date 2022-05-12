@@ -1,13 +1,12 @@
 package com.jundaai.note.controller;
 
-import com.jundaai.note.form.create.NoteCreationForm;
-import com.jundaai.note.form.update.NoteUpdateForm;
+import com.jundaai.note.form.note.NoteCreationForm;
+import com.jundaai.note.form.note.NoteUpdateForm;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
 import com.jundaai.note.service.NoteService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;

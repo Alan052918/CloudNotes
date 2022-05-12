@@ -1,4 +1,4 @@
-package com.jundaai.note.form.create;
+package com.jundaai.note.form.note;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,15 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public final class NoteCreationForm {
+public final class NoteUpdateForm {
 
     @NotBlank
-    private String name;
+    private String updateType;
+
+    private String newName;
+    private String newContent;
+    private Long toFolderId;
+    private Long tagId;
+
 
 }

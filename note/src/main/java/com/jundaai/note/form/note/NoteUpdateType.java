@@ -1,4 +1,4 @@
-package com.jundaai.note.form.update;
+package com.jundaai.note.form.note;
 
 public interface NoteUpdateType {
 
