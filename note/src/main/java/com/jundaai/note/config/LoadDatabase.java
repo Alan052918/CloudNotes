@@ -77,10 +77,6 @@ public class LoadDatabase {
             tags.add(pl);
             jdbc.setTags(tags);
 
-            List<Note> notes = pl.getNotes();
-            notes.add(jdbc);
-            pl.setNotes(notes);
-
             noteRepository.save(jdbc);
             tagRepository.save(pl);
         };
