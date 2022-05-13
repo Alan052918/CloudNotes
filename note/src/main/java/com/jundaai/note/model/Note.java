@@ -2,7 +2,10 @@ package com.jundaai.note.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
@@ -19,12 +22,7 @@ public class Note {
 
     @Id
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "note_id_sequence"
-    )
-    @SequenceGenerator(
-            name = "note_id_sequence",
-            sequenceName = "note_id_sequence"
+            strategy = GenerationType.IDENTITY
     )
     private Long id;
 
@@ -45,8 +43,9 @@ public class Note {
             name = "folder_id",
             referencedColumnName = "id"
     )
-    @ToString.Exclude
-    @JsonIgnoreProperties(value = {"parentFolder", "subFolders", "notes"})
+    @JsonIgnoreProperties(
+            value = {"parentFolder", "subFolders", "notes"}
+    )
     private Folder folder;
 
     @ManyToMany(
@@ -64,7 +63,6 @@ public class Note {
                     referencedColumnName = "id"
             )
     )
-    @ToString.Exclude
     @JsonIgnore
     private List<Tag> tags;
 

@@ -10,11 +10,11 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
-//@Table(
-//        uniqueConstraints = {
-//                @UniqueConstraint(columnNames = {"name"})
-//        }
-//)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name"})
+        }
+)
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,14 +22,7 @@ import java.util.List;
 public class Tag {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "tag_id_sequence"
-    )
-    @SequenceGenerator(
-            name = "tag_id_sequence",
-            sequenceName = "tag_id_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
@@ -46,7 +39,7 @@ public class Tag {
             fetch = FetchType.EAGER,
             mappedBy = "tags"
     )
-    @ToString.Exclude
     @JsonIgnore
     private List<Note> notes;
+
 }

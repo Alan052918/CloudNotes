@@ -18,12 +18,7 @@ public class Folder {
 
     @Id
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "folder_id_sequence"
-    )
-    @SequenceGenerator(
-            name = "folder_id_sequence",
-            sequenceName = "folder_id_sequence"
+            strategy = GenerationType.IDENTITY
     )
     private Long id;
 
