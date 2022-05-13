@@ -8,7 +8,7 @@ Key points for 9053 evaluation:
   - Spring Web MVC: controller, service, repository architecture
   - Spring Data JPA: entity, JQL query
     - OneToMany, ManyToOne, ManyToMany relations
-  - Spring HATEOAS: entity model, collection model, add links to API (makes it RESTful)
+  - Spring HATEOAS: entity model, collection model, add links to API (make it RESTful)
   - Spring Validation: validate request forms
 - Maven
   - Maven multi-module project: dependency management, plugin management
