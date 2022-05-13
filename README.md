@@ -93,6 +93,7 @@ mvn spring-boot:run
 
 - [ ] TODO: containerize note application
 - [ ] TODO: add more submodules and service discovery to make this project fully-microservice.
+- [ ] TODO: add unit tests and integration tests with Spring Testing
 
 Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/config/LoadDatabase.java) that populates the database with some folders, notes, and tags. My intention is to save you some time creating data, but please drop all tables before rerunning the application. An in-memory database like H2 that allows clean starts is preferable for testing purposes.
 
