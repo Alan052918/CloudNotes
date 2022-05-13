@@ -18,8 +18,17 @@ public final class NoteUpdateForm {
 
     private String newName;
     private String newContent;
-    private Long toFolderId;
-    private String tagName;
 
+    /**
+     * Folder name is not unique, notes in different folders can have the same name
+     * Cannot move to a non-existing folder
+     */
+    private Long toFolderId;
+
+    /**
+     * Tag names are unique
+     * A new tag is created if the name of the tag to add is not found
+     */
+    private String tagName;
 
 }

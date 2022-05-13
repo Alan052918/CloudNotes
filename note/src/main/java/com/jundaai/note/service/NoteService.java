@@ -42,7 +42,16 @@ public class NoteService {
 
     public List<Note> getAllNotesByFolderId(Long folderId) {
         log.info("Get all notes by folder id: {}", folderId);
-        return folderRepository.getNotesById(folderId);
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new FolderNotFoundException(folderId));
+        return folder.getNotes();
+    }
+
+    public List<Note> getAllNotesByTagId(Long tagId) {
+        log.info("Get all notes by tag id: {}", tagId);
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
+        return tag.getNotes();
     }
 
     public Note getNoteById(Long noteId) {
@@ -114,24 +123,37 @@ public class NoteService {
                 Folder fromFolder = note.getFolder();
                 if (toFolder != null && !Objects.equals(toFolder, fromFolder)) {
                     note.setFolder(toFolder);
+                    note = noteRepository.save(note);
 
                     List<Note> fromFolderNotes = fromFolder.getNotes();
                     fromFolderNotes.remove(note);
                     fromFolder.setNotes(fromFolderNotes);
+                    folderRepository.save(fromFolder);
 
                     List<Note> toFolderNotes = toFolder.getNotes();
                     toFolderNotes.add(note);
                     toFolder.setNotes(toFolderNotes);
-
-                    folderRepository.save(fromFolder);
                     folderRepository.save(toFolder);
+
                     isUpdated = true;
                 }
             }
             case NoteUpdateType.ADD_TAG -> {
+                Tag tag;
                 String tagName = updateForm.getTagName();
-                Tag tag = tagRepository.findByName(tagName)
-                        .orElseThrow(() -> new TagNotFoundException(-1L, tagName));
+                boolean existsByName = tagRepository.existsByName(tagName);
+                if (existsByName) {
+                    tag = tagRepository.getByName(tagName);
+                } else {
+                    ZonedDateTime now = ZonedDateTime.now();
+                    tag = Tag.builder()
+                            .name(tagName)
+                            .createdAt(now)
+                            .updatedAt(now)
+                            .notes(new ArrayList<>())
+                            .build();
+                    tag = tagRepository.save(tag);
+                }
                 if (note.getTags().contains(tag)) {
                     break;
                 }
@@ -150,7 +172,7 @@ public class NoteService {
             case NoteUpdateType.REMOVE_TAG -> {
                 String tagName = updateForm.getTagName();
                 Tag tag = tagRepository.findByName(tagName)
-                        .orElseThrow(() -> new TagNotFoundException(-1L, tagName));
+                        .orElseThrow(() -> new TagNotFoundException("name: " + tagName));
                 if (!note.getTags().contains(tag)) {
                     throw new BadRequestException("Note " + note + " has no tag " + tag);
                 }
