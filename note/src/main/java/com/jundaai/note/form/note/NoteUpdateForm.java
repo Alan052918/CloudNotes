@@ -19,7 +19,7 @@ public final class NoteUpdateForm {
     private String newName;
     private String newContent;
     private Long toFolderId;
-    private Long tagId;
+    private String tagName;
 
 
 }

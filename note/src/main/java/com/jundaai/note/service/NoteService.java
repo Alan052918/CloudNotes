@@ -129,9 +129,9 @@ public class NoteService {
                 }
             }
             case NoteUpdateType.ADD_TAG -> {
-                Long tagId = updateForm.getTagId();
-                Tag tag = tagRepository.findById(tagId)
-                        .orElseThrow(() -> new TagNotFoundException(tagId));
+                String tagName = updateForm.getTagName();
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseThrow(() -> new TagNotFoundException(-1L, tagName));
                 if (note.getTags().contains(tag)) {
                     break;
                 }
@@ -148,9 +148,9 @@ public class NoteService {
                 isUpdated = true;
             }
             case NoteUpdateType.REMOVE_TAG -> {
-                Long tagId = updateForm.getTagId();
-                Tag tag = tagRepository.findById(tagId)
-                        .orElseThrow(() -> new TagNotFoundException(tagId));
+                String tagName = updateForm.getTagName();
+                Tag tag = tagRepository.findByName(tagName)
+                        .orElseThrow(() -> new TagNotFoundException(-1L, tagName));
                 if (!note.getTags().contains(tag)) {
                     throw new BadRequestException("Note " + note + " has no tag " + tag);
                 }

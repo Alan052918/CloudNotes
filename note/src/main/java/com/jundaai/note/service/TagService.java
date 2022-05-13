@@ -43,7 +43,7 @@ public class TagService {
     public Tag getTagById(Long tagId) {
         log.info("Get tag by id: {}", tagId);
         return tagRepository.findById(tagId)
-                .orElseThrow(() -> new TagNotFoundException(tagId));
+                .orElseThrow(() -> new TagNotFoundException(tagId, ""));
     }
 
     @Transactional
@@ -75,7 +75,7 @@ public class TagService {
     public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {
         log.info("Update tag by id: {}, form: {}", tagId, updateForm);
         Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new TagNotFoundException(tagId));
+                .orElseThrow(() -> new TagNotFoundException(tagId, ""));
 
         String newName = updateForm.getNewName();
         if (!Objects.equals(newName, tag.getName())) {
@@ -94,7 +94,7 @@ public class TagService {
     public void deleteTagById(Long tagId) {
         log.info("Delete tag by id: {}", tagId);
         Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new TagNotFoundException(tagId));
+                .orElseThrow(() -> new TagNotFoundException(tagId, ""));
 
         tag.getNotes().forEach(note -> {
             List<Tag> noteTags = note.getTags();

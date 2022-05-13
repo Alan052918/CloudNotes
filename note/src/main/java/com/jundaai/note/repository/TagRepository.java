@@ -5,10 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
     @Query(value = "select count(t) from Tag t where t.name = ?1")
     boolean existsByName(String name);
+
+    @Query(value = "select t from Tag t where t.name = ?1")
+    Optional<Tag> findByName(String tagName);
 
 }
