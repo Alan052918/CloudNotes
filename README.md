@@ -61,6 +61,8 @@ Key points for 9053 evaluation:
       - [GET request](#get-request-8)
       - [PATCH request](#patch-request-2)
       - [DELETE request](#delete-request-2)
+    - [api/v1/tags/{tagId}/notes](#apiv1tagstagidnotes)
+      - [GET request](#get-request-9)
 
 ## Getting Started
 
@@ -92,7 +94,7 @@ mvn spring-boot:run
 ```
 
 - [ ] TODO: containerize note application
-- [ ] TODO: add more submodules and service discovery to make this project fully-microservice.
+- [ ] TODO: add more submodules and service discovery to make this project fully microservice.
 - [ ] TODO: add unit tests and integration tests with Spring Testing
 
 Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/config/LoadDatabase.java) that populates the database with some folders, notes, and tags. My intention is to save you some time creating data, but please drop all tables before rerunning the application. An in-memory database like H2 that allows clean starts is preferable for testing purposes.
@@ -315,6 +317,13 @@ Example payload:
 
 ```json
 {
+  "updateType": "MOVE_NOTE",
+  "toFolderId": 2
+}
+```
+
+```json
+{
   "updateType": "ADD_TAG",
   "tagName": "pl"
 }
@@ -395,3 +404,10 @@ Example payload:
 - Success status code: `204 NO CONTENT`
 - Exceptions:
   - [TagNotFoundException](#tagnotfoundexception)
+
+### api/v1/tags/{tagId}/notes
+
+#### GET request
+
+- Description: get all notes by tag id 'tagId'
+- Succcess status code: `200 OK`
