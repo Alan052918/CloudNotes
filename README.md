@@ -2,7 +2,26 @@
 
 A REST API for note storage built with Spring Boot.
 
+Key points for 9053 evaluation:
+
+- Spring Boot
+  - Spring Web MVC: controller, service, repository architecture
+  - Spring Data JPA: entity, JQL query
+    - OneToMany, ManyToOne, ManyToMany relations
+  - Spring HATEOAS: entity model, collection model, add links to API (makes it RESTful)
+  - Spring Validation: validate request forms
+- Maven
+  - Maven multi-module project: dependency management, plugin management
+  - Build and run Spring Boot Application
+- MySQL
+- Docker Compose
+- API design
+- Exception handling
+
+## Table of Contents
+
 - [CloudNotes](#cloudnotes)
+  - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Model](#model)
   - [Custom Exceptions](#custom-exceptions)
@@ -73,6 +92,9 @@ mvn spring-boot:run
 ```
 
 - [ ] TODO: containerize note application
+- [ ] TODO: add more submodules and service discovery to make this project fully-microservice.
+
+Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/config/LoadDatabase.java) that populates the database with some folders, notes, and tags. My intention is to save you some time creating data, but please drop all tables before rerunning the application. An in-memory database like H2 that allows clean starts is preferable for testing purposes.
 
 ## Model
 
