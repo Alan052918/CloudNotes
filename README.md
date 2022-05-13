@@ -114,11 +114,13 @@ Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/conf
   - createdAt: `ZonedDateTime`
   - updatedAt: `ZonedDateTime`
   - folder: `Folder`
+  - tags: `List<Tag>`
 - Tag: A tag can be attached to multiple notes, a note can also have multiple tags
   - id: `Long`
   - name: `String`
   - createdAt: `ZonedDateTime`
   - updatedAt: `ZonedDateTime`
+  - notes: `List<Note>`
 
 ## Custom Exceptions
 
