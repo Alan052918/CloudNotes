@@ -44,6 +44,13 @@ public class NoteController {
         return noteModelAssembler.toCollectionModel(notes);
     }
 
+    @GetMapping(path = "tags/{tagId}/notes")
+    public CollectionModel<EntityModel<Note>> getAllNotesByTagId(@PathVariable(name = "tagId") Long tagId) {
+        log.info("Request to get all notes by tag id: {}", tagId);
+        List<Note> notes = noteService.getAllNotesByTagId(tagId);
+        return noteModelAssembler.toCollectionModel(notes);
+    }
+
     @GetMapping(path = "notes/{noteId}")
     public EntityModel<Note> getNoteById(@PathVariable(name = "noteId") Long noteId) {
         log.info("Request to get note by note id: {}", noteId);
