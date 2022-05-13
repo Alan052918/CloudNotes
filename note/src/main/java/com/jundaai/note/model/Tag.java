@@ -35,7 +35,10 @@ public class Tag {
     private ZonedDateTime updatedAt;
 
     @ManyToMany(
-            cascade = CascadeType.ALL,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
             fetch = FetchType.EAGER,
             mappedBy = "tags"
     )
