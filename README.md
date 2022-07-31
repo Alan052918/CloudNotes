@@ -1,6 +1,6 @@
 # CloudNotes
 
-A REST API for note storage built with Spring Boot.
+A simple RESTful service to organize notes with folders and hashtags, built with Spring Boot.
 
 Key points for 9053 evaluation:
 
