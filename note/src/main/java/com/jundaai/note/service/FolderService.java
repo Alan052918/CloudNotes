@@ -54,7 +54,7 @@ public class FolderService {
         log.info("Create new folder: {}, parent folder id: {}", folderCreationForm, parentId);
 
         String folderName = folderCreationForm.getName();
-        if (Objects.equals(folderName, "root")) {
+        if (folderName.equals("root")) {
             throw new RootPreservationException(FolderOperationType.CREATE_FOLDER);
         }
         if (folderName.isBlank()) {
@@ -93,15 +93,20 @@ public class FolderService {
     @Transactional
     public Folder updateFolderById(Long folderId, FolderUpdateForm updateForm) {
         log.info("Update folder by id: {}, form: {}", folderId, updateForm);
-        boolean isUpdated = false;
         ZonedDateTime now = ZonedDateTime.now();
         Folder folder = folderRepository
                 .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
+        if (folder.getName().equals("root")) {
+            throw new RootPreservationException(updateForm.getUpdateType());
+        }
 
         switch (updateForm.getUpdateType()) {
             case FolderOperationType.RENAME_FOLDER -> {
                 String newName = updateForm.getNewName();
+                if (newName.equals("root")) {
+                    throw new RootPreservationException(FolderOperationType.RENAME_FOLDER);
+                }
                 if (newName.isBlank()) {
                     throw new FolderNameBlankException();
                 }
@@ -110,7 +115,7 @@ public class FolderService {
                     throw new FolderNameConflictException(newName);
                 }
                 folder.setName(newName);
-                isUpdated = true;
+                folder.setUpdatedAt(now);
             }
             case FolderOperationType.MOVE_FOLDER -> {
                 Long toParentId = updateForm.getToParentId();
@@ -118,29 +123,37 @@ public class FolderService {
                         .findById(toParentId)
                         .orElseThrow(() -> new FolderNotFoundException(toParentId));
                 Folder fromParent = folder.getParentFolder();
-                if (toParent != null && !Objects.equals(toParent, folder) && !Objects.equals(toParent, fromParent)) {
-                    folder.setParentFolder(toParent);
 
-                    List<Folder> fromParentSubFolders = fromParent.getSubFolders();
-                    fromParentSubFolders.remove(folder);
-                    fromParent.setSubFolders(fromParentSubFolders);
-                    fromParent.setUpdatedAt(now);
-
-                    List<Folder> toParentSubFolders = toParent.getSubFolders();
-                    toParentSubFolders.add(folder);
-                    toParent.setSubFolders(toParentSubFolders);
-                    toParent.setUpdatedAt(now);
-
-                    folderRepository.save(fromParent);
-                    folderRepository.save(toParent);
-                    isUpdated = true;
+                if (toParent == null) {
+                    log.error("Cannot move folder to null parent folder. Abort.");
+                    return folder;
                 }
+                if (Objects.equals(toParent, folder)) {
+                    log.error("Cannot move folder to self. Abort.");
+                    return folder;
+                }
+                if (Objects.equals(toParent, fromParent)) {
+                    log.error("Destination folder identical as current parent folder. Abort.");
+                    return folder;
+                }
+
+                folder.setParentFolder(toParent);
+                folder.setUpdatedAt(now);
+
+                List<Folder> fromParentSubFolders = fromParent.getSubFolders();
+                fromParentSubFolders.remove(folder);
+                fromParent.setSubFolders(fromParentSubFolders);
+                fromParent.setUpdatedAt(now);
+
+                List<Folder> toParentSubFolders = toParent.getSubFolders();
+                toParentSubFolders.add(folder);
+                toParent.setSubFolders(toParentSubFolders);
+                toParent.setUpdatedAt(now);
+
+                folderRepository.save(fromParent);
+                folderRepository.save(toParent);
             }
             default -> throw new IllegalArgumentException("Unsupported folder update type.");
-        }
-
-        if (isUpdated) {
-            folder.setUpdatedAt(now);
         }
         return folderRepository.save(folder);
     }
