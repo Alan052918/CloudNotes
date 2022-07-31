@@ -6,7 +6,7 @@ import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
 import com.jundaai.note.form.folder.FolderCreationForm;
 import com.jundaai.note.form.folder.FolderUpdateForm;
-import com.jundaai.note.form.folder.FolderUpdateType;
+import com.jundaai.note.form.folder.FolderOperationType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.repository.FolderRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,7 @@ public class FolderService {
 
         String folderName = folderCreationForm.getName();
         if (Objects.equals(folderName, "root")) {
-            throw new RootPreservationException("folder creation");
+            throw new RootPreservationException(FolderOperationType.CREATE_FOLDER);
         }
         if (folderName.isBlank()) {
             throw new FolderNameBlankException();
@@ -100,7 +100,7 @@ public class FolderService {
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
 
         switch (updateForm.getUpdateType()) {
-            case FolderUpdateType.RENAME_FOLDER -> {
+            case FolderOperationType.RENAME_FOLDER -> {
                 String newName = updateForm.getNewName();
                 if (newName.isBlank()) {
                     throw new FolderNameBlankException();
@@ -112,7 +112,7 @@ public class FolderService {
                 folder.setName(newName);
                 isUpdated = true;
             }
-            case FolderUpdateType.MOVE_FOLDER -> {
+            case FolderOperationType.MOVE_FOLDER -> {
                 Long toParentId = updateForm.getToParentId();
                 Folder toParent = folderRepository
                         .findById(toParentId)
@@ -152,7 +152,7 @@ public class FolderService {
                 .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         if (Objects.equals(folder.getName(), "root")) {
-            throw new RootPreservationException("folder deletion");
+            throw new RootPreservationException(FolderOperationType.DELETE_FOLDER);
         }
         folderRepository.deleteById(folderId);
     }

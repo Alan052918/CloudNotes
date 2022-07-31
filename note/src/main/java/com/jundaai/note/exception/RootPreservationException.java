@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class RootPreservationException extends RuntimeException {
 
-    public RootPreservationException(String operation) {
-        super("Root folder is preserved, " + operation + " failed.");
+    public RootPreservationException(String folderOperationType) {
+        super("Root folder is preserved, " + folderOperationType + " failed.");
     }
 
 }
