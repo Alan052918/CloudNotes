@@ -18,6 +18,23 @@ Key points for 9053 evaluation:
 - API design
 - Exception handling
 
+Service oriented architecture:
+
+- [x] Transport: HTTP JSON
+- [x] Logging
+- [ ] Metrics
+- [ ] Tracing
+- [ ] Circuit breaking
+- [ ] Rate limiting
+- [ ] Audit logging
+- [ ] Service discovery
+- [ ] Service registry
+- [ ] Caching strategy
+- [ ] Deploy strategy
+- [ ] Contract testing
+- [ ] Security
+- [ ] Alerting
+
 ## Table of Contents
 
 - [CloudNotes](#cloudnotes)
