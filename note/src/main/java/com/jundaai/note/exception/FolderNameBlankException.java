@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class FolderNameBlankException extends RuntimeException {
 
     public FolderNameBlankException() {
-        super("Folder name cannot be blank (null or all whitespaces)");
+        super("Folder name cannot be blank (null or all whitespaces).");
     }
 
 }

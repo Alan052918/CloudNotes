@@ -15,7 +15,6 @@ public final class FolderUpdateForm {
 
     @NotBlank
     private String updateType;
-
     private String newName;
     private Long toParentId;
 

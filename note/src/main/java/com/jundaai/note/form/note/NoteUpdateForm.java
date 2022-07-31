@@ -15,7 +15,6 @@ public final class NoteUpdateForm {
 
     @NotBlank
     private String updateType;
-
     private String newName;
     private String newContent;
 
