@@ -1,6 +1,19 @@
 version: "3.8"
 
 services:
+#  note:
+#    container_name: note
+#    build:
+#      context: ./note/
+#      dockerfile: Dockerfile
+#    restart: on-failure
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - note-network
+#    depends_on:
+#      - note-db
+
   note-db:
     image: mysql:oracle
     restart: unless-stopped
@@ -13,6 +26,18 @@ services:
       - note-db:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - note-network
+    healthcheck:
+      test: "/usr/bin/mysql --user=mysql --password=mysql --execute \"SHOW DATABASES;\""
+      interval: 5s
+      timeout: 30s
+      retries: 10
+
+networks:
+  note-network:
+    name: note-network
+    driver: bridge
 
 volumes:
   note-db:
