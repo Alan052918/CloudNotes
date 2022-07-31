@@ -42,7 +42,8 @@ public class TagService {
 
     public Tag getTagById(Long tagId) {
         log.info("Get tag by id: {}", tagId);
-        return tagRepository.findById(tagId)
+        return tagRepository
+                .findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
     }
 
@@ -60,7 +61,8 @@ public class TagService {
         }
 
         ZonedDateTime now = ZonedDateTime.now();
-        Tag tag = Tag.builder()
+        Tag tag = Tag
+                .builder()
                 .name(name)
                 .createdAt(now)
                 .updatedAt(now)
@@ -74,7 +76,8 @@ public class TagService {
     @Transactional
     public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {
         log.info("Update tag by id: {}, form: {}", tagId, updateForm);
-        Tag tag = tagRepository.findById(tagId)
+        Tag tag = tagRepository
+                .findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
 
         String newName = updateForm.getNewName();
@@ -93,7 +96,8 @@ public class TagService {
     @Transactional
     public void deleteTagById(Long tagId) {
         log.info("Delete tag by id: {}", tagId);
-        Tag tag = tagRepository.findById(tagId)
+        Tag tag = tagRepository
+                .findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
 
         tag.getNotes().forEach(note -> {

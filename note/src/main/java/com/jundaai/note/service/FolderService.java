@@ -36,7 +36,8 @@ public class FolderService {
 
     public Folder getFolderById(Long folderId) {
         log.info("Get folder by id: {}", folderId);
-        return folderRepository.findById(folderId)
+        return folderRepository
+                .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
     }
 
@@ -54,7 +55,8 @@ public class FolderService {
             throw new RootPreservationException("folder creation");
         }
 
-        Folder parent = folderRepository.findById(parentId)
+        Folder parent = folderRepository
+                .findById(parentId)
                 .orElseThrow(() -> new FolderNotFoundException(parentId));
         boolean nameConflicted = folderRepository.existsByNameWithSameParent(folderName, parent);
         if (nameConflicted) {
@@ -62,7 +64,8 @@ public class FolderService {
         }
 
         ZonedDateTime now = ZonedDateTime.now();
-        Folder folder = Folder.builder()
+        Folder folder = Folder
+                .builder()
                 .name(folderName)
                 .createdAt(now)
                 .updatedAt(now)
@@ -85,7 +88,8 @@ public class FolderService {
     public Folder updateFolderById(Long folderId, FolderUpdateForm updateForm) {
         log.info("Update folder by id: {}, form: {}", folderId, updateForm);
         boolean isUpdated = false;
-        Folder folder = folderRepository.findById(folderId)
+        Folder folder = folderRepository
+                .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
 
         switch (updateForm.getUpdateType()) {
@@ -100,7 +104,8 @@ public class FolderService {
             }
             case FolderUpdateType.MOVE_FOLDER -> {
                 Long toParentId = updateForm.getToParentId();
-                Folder toParent = folderRepository.findById(toParentId)
+                Folder toParent = folderRepository
+                        .findById(toParentId)
                         .orElseThrow(() -> new FolderNotFoundException(toParentId));
                 Folder fromParent = folder.getParentFolder();
                 if (toParent != null && !Objects.equals(toParent, folder) && !Objects.equals(toParent, fromParent)) {
@@ -132,7 +137,8 @@ public class FolderService {
     @Transactional
     public void deleteFolderById(Long folderId) {
         log.info("Delete folder by id: {}", folderId);
-        Folder folder = folderRepository.findById(folderId)
+        Folder folder = folderRepository
+                .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         if (Objects.equals(folder.getName(), "root")) {
             throw new RootPreservationException("folder deletion");

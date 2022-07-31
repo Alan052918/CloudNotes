@@ -16,10 +16,12 @@ public class NoteModelAssembler implements RepresentationModelAssembler<Note, En
 
     @Override
     public EntityModel<Note> toModel(Note entity) {
-        return EntityModel.of(entity,
+        return EntityModel.of(
+                entity,
                 linkTo(methodOn(NoteController.class).getNoteById(entity.getId())).withSelfRel(),
                 linkTo(methodOn(FolderController.class).getFolderById(entity.getFolder().getId())).withRel("folder"),
-                linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes"));
+                linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes")
+        );
     }
 
     @Override

@@ -42,21 +42,24 @@ public class NoteService {
 
     public List<Note> getAllNotesByFolderId(Long folderId) {
         log.info("Get all notes by folder id: {}", folderId);
-        Folder folder = folderRepository.findById(folderId)
+        Folder folder = folderRepository
+                .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         return folder.getNotes();
     }
 
     public List<Note> getAllNotesByTagId(Long tagId) {
         log.info("Get all notes by tag id: {}", tagId);
-        Tag tag = tagRepository.findById(tagId)
+        Tag tag = tagRepository
+                .findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
         return tag.getNotes();
     }
 
     public Note getNoteById(Long noteId) {
         log.info("Get note by id: {}", noteId);
-        return noteRepository.findById(noteId)
+        return noteRepository
+                .findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
     }
 
@@ -65,7 +68,8 @@ public class NoteService {
         log.info("Create new note: {}, folder id: {}", creationForm, folderId);
 
         String noteName = creationForm.getName();
-        Folder folder = folderRepository.findById(folderId)
+        Folder folder = folderRepository
+                .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
         boolean nameConflicted = noteRepository.existsByNameWithSameFolder(noteName, folder);
         if (nameConflicted) {
@@ -73,7 +77,8 @@ public class NoteService {
         }
 
         ZonedDateTime now = ZonedDateTime.now();
-        Note note = Note.builder()
+        Note note = Note
+                .builder()
                 .name(noteName)
                 .content("")
                 .createdAt(now)
@@ -96,7 +101,8 @@ public class NoteService {
     public Note updateNoteById(Long noteId, NoteUpdateForm updateForm) {
         log.info("Update note by id: {}, form: {}", noteId, updateForm);
         boolean isUpdated = false;
-        Note note = noteRepository.findById(noteId)
+        Note note = noteRepository
+                .findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
 
         switch (updateForm.getUpdateType()) {
@@ -118,7 +124,8 @@ public class NoteService {
             }
             case NoteUpdateType.MOVE_NOTE -> {
                 Long toFolderId = updateForm.getToFolderId();
-                Folder toFolder = folderRepository.findById(toFolderId)
+                Folder toFolder = folderRepository
+                        .findById(toFolderId)
                         .orElseThrow(() -> new FolderNotFoundException(toFolderId));
                 Folder fromFolder = note.getFolder();
                 if (toFolder != null && !Objects.equals(toFolder, fromFolder)) {
@@ -146,7 +153,8 @@ public class NoteService {
                     tag = tagRepository.getByName(tagName);
                 } else {
                     ZonedDateTime now = ZonedDateTime.now();
-                    tag = Tag.builder()
+                    tag = Tag
+                            .builder()
                             .name(tagName)
                             .createdAt(now)
                             .updatedAt(now)
@@ -171,7 +179,8 @@ public class NoteService {
             }
             case NoteUpdateType.REMOVE_TAG -> {
                 String tagName = updateForm.getTagName();
-                Tag tag = tagRepository.findByName(tagName)
+                Tag tag = tagRepository
+                        .findByName(tagName)
                         .orElseThrow(() -> new TagNotFoundException("name: " + tagName));
                 if (!note.getTags().contains(tag)) {
                     throw new BadRequestException("Note " + note + " has no tag " + tag);
@@ -203,7 +212,8 @@ public class NoteService {
     @Transactional
     public void deleteNoteById(Long noteId) {
         log.info("Delete note by id: {}", noteId);
-        Note note = noteRepository.findById(noteId)
+        Note note = noteRepository
+                .findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
 
         Folder folder = note.getFolder();
