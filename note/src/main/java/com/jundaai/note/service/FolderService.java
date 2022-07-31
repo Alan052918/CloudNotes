@@ -94,6 +94,7 @@ public class FolderService {
     public Folder updateFolderById(Long folderId, FolderUpdateForm updateForm) {
         log.info("Update folder by id: {}, form: {}", folderId, updateForm);
         boolean isUpdated = false;
+        ZonedDateTime now = ZonedDateTime.now();
         Folder folder = folderRepository
                 .findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
@@ -123,10 +124,12 @@ public class FolderService {
                     List<Folder> fromParentSubFolders = fromParent.getSubFolders();
                     fromParentSubFolders.remove(folder);
                     fromParent.setSubFolders(fromParentSubFolders);
+                    fromParent.setUpdatedAt(now);
 
                     List<Folder> toParentSubFolders = toParent.getSubFolders();
                     toParentSubFolders.add(folder);
                     toParent.setSubFolders(toParentSubFolders);
+                    toParent.setUpdatedAt(now);
 
                     folderRepository.save(fromParent);
                     folderRepository.save(toParent);
@@ -137,7 +140,7 @@ public class FolderService {
         }
 
         if (isUpdated) {
-            folder.setUpdatedAt(ZonedDateTime.now());
+            folder.setUpdatedAt(now);
         }
         return folderRepository.save(folder);
     }
