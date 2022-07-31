@@ -12,10 +12,10 @@ import java.util.Optional;
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
 
-    @Query("select f.subFolders from Folder f where f.id = ?1")
+    @Query(value = "select f.subFolders from Folder f where f.id = ?1")
     List<Folder> getSubFoldersByParentId(Long parentId);
 
-    @Query("select count(f) > 0 from Folder f where f.name = ?1 and f.parentFolder = ?2")
+    @Query(value = "select count(f) > 0 from Folder f where f.name = ?1 and f.parentFolder = ?2")
     boolean existsByNameWithSameParent(String name, Folder parent);
 
 }
