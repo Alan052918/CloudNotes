@@ -43,7 +43,9 @@ public class FolderService {
 
     public List<Folder> getSubFoldersByParentId(Long parentId) {
         log.info("Get sub-folders by parent id: {}", parentId);
-        return folderRepository.getSubFoldersByParentId(parentId);
+        return folderRepository
+                .findSubFoldersByParentId(parentId)
+                .orElseThrow(() -> new FolderNotFoundException(parentId));
     }
 
     @Transactional
