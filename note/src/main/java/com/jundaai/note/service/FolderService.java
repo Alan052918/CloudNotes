@@ -1,5 +1,6 @@
 package com.jundaai.note.service;
 
+import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
@@ -56,6 +57,9 @@ public class FolderService {
         if (Objects.equals(folderName, "root")) {
             throw new RootPreservationException("folder creation");
         }
+        if (folderName.isBlank()) {
+            throw new FolderNameBlankException();
+        }
 
         Folder parent = folderRepository
                 .findById(parentId)
@@ -97,6 +101,9 @@ public class FolderService {
         switch (updateForm.getUpdateType()) {
             case FolderUpdateType.RENAME_FOLDER -> {
                 String newName = updateForm.getNewName();
+                if (newName.isBlank()) {
+                    throw new FolderNameBlankException();
+                }
                 boolean nameConflicted = folderRepository.existsByNameWithSameParent(newName, folder.getParentFolder());
                 if (nameConflicted) {
                     throw new FolderNameConflictException(newName);
@@ -132,7 +139,6 @@ public class FolderService {
         if (isUpdated) {
             folder.setUpdatedAt(ZonedDateTime.now());
         }
-
         return folderRepository.save(folder);
     }
 
@@ -145,7 +151,6 @@ public class FolderService {
         if (Objects.equals(folder.getName(), "root")) {
             throw new RootPreservationException("folder deletion");
         }
-
         folderRepository.deleteById(folderId);
     }
 
