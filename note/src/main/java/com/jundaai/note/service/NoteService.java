@@ -80,7 +80,7 @@ public class NoteService {
         Note note = Note
                 .builder()
                 .name(noteName)
-                .content("")
+                .content(creationForm.getContent())
                 .createdAt(now)
                 .updatedAt(now)
                 .folder(folder)
@@ -132,8 +132,8 @@ public class NoteService {
                     log.error("Destination folder identical as current folder. Abort.");
                     return note;
                 }
+
                 note.setFolder(toFolder);
-                note = noteRepository.save(note);
 
                 List<Note> fromFolderNotes = fromFolder.getNotes();
                 fromFolderNotes.remove(note);
@@ -153,6 +153,10 @@ public class NoteService {
                 boolean existsByName = tagRepository.existsByName(tagName);
                 if (existsByName) {
                     tag = tagRepository.getByName(tagName);
+                    if (note.getTags().contains(tag)) {
+                        log.error("Note already contains tag to add. Abort.");
+                        return note;
+                    }
                 } else {
                     tag = Tag
                             .builder()
@@ -163,20 +167,16 @@ public class NoteService {
                             .build();
                     tag = tagRepository.save(tag);
                 }
-                if (note.getTags().contains(tag)) {
-                    log.error("Note already contains tag to add. Abort.");
-                    return note;
-                }
+
+                List<Tag> noteTags = note.getTags();
+                noteTags.add(tag);
+                note.setTags(noteTags);
 
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.add(note);
                 tag.setNotes(tagNotes);
                 tag.setUpdatedAt(now);
                 tagRepository.save(tag);
-
-                List<Tag> noteTags = note.getTags();
-                noteTags.add(tag);
-                note.setTags(noteTags);
             }
             case NoteUpdateType.REMOVE_TAG -> {
                 String tagName = updateForm.getTagName();
@@ -187,15 +187,15 @@ public class NoteService {
                     throw new BadRequestException("Note " + note + " has no tag " + tag);
                 }
 
+                List<Tag> noteTags = note.getTags();
+                noteTags.remove(tag);
+                note.setTags(noteTags);
+
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.remove(note);
                 tag.setNotes(tagNotes);
                 tag.setUpdatedAt(now);
                 tagRepository.save(tag);
-
-                List<Tag> noteTags = note.getTags();
-                noteTags.remove(tag);
-                note.setTags(noteTags);
             }
             default -> throw new IllegalArgumentException("Unsupported note update type.");
         }
