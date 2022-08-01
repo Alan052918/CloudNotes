@@ -23,6 +23,7 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(FolderRepository folderRepository,
                                    NoteRepository noteRepository,
                                    TagRepository tagRepository) {
+        log.info("Loading Database...");
         return args -> {
             ZonedDateTime now = ZonedDateTime.now();
             Folder root = folderRepository.save(Folder.builder()
