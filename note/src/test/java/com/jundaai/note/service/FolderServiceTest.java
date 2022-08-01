@@ -1,6 +1,7 @@
 package com.jundaai.note.service;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.jundaai.note.exception.FolderNameBlankException;
@@ -20,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,8 +38,12 @@ class FolderServiceTest {
 
     private AutoCloseable autoCloseable;
     private FolderService testService;
+
     @Mock
     private FolderRepository mockFolderRepository;
+
+    private ArgumentCaptor<Folder> folderArgumentCaptor;
+    private ListAppender<ILoggingEvent> loggingEventListAppender;
 
     private List<Folder> savedFolders;
     private List<Long> savedFolderIds;
@@ -49,6 +52,13 @@ class FolderServiceTest {
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
         testService = new FolderService(mockFolderRepository);
+        folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
+
+        Logger logger = (Logger) LoggerFactory.getLogger(FolderService.class);
+        loggingEventListAppender = new ListAppender<>();
+        loggingEventListAppender.start();
+        logger.addAppender(loggingEventListAppender);
+
         savedFolders = new ArrayList<>();
         savedFolderIds = new ArrayList<>();
         loadFolders();
@@ -106,17 +116,23 @@ class FolderServiceTest {
 
     @Test
     void getAllFolders_Success() {
+        // given
+        List<Folder> expectedFolders = savedFolders;
+
         // when
-        testService.getAllFolders();
+        when(mockFolderRepository.findAll()).thenReturn(savedFolders);
+        List<Folder> gotFolders = testService.getAllFolders();
 
         // then
         verify(mockFolderRepository).findAll();
+        assertEquals(expectedFolders, gotFolders);
     }
 
     @Test
     void getFolderById_Success() {
         // given
         Long testId = savedFolderIds.get(0);
+        Folder expectedFolder = savedFolders.get(0);
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
@@ -124,7 +140,7 @@ class FolderServiceTest {
 
         // then
         verify(mockFolderRepository).findById(testId);
-        assertEquals(testId, gotFolder.getId());
+        assertEquals(expectedFolder, gotFolder);
     }
 
     @Test
@@ -146,23 +162,16 @@ class FolderServiceTest {
     void getSubFoldersByParentId_Success() {
         // given
         Long testParentId = savedFolderIds.get(0);
-        List<Long> expectedSubFolderIds = Arrays.asList(savedFolderIds.get(1), savedFolderIds.get(2));
-
+        List<Folder> expectedSubFolders = Arrays.asList(savedFolders.get(1), savedFolders.get(2));
 
         // when
         when(mockFolderRepository.findSubFoldersByParentId(testParentId))
                 .thenReturn(Optional.of(Arrays.asList(savedFolders.get(1), savedFolders.get(2))));
-        List<Folder> subFolders = testService.getSubFoldersByParentId(testParentId);
+        List<Folder> gotSubFolders = testService.getSubFoldersByParentId(testParentId);
 
         // then
         verify(mockFolderRepository).findSubFoldersByParentId(testParentId);
-        assertEquals(
-                expectedSubFolderIds,
-                subFolders
-                        .stream()
-                        .map(Folder::getId)
-                        .collect(Collectors.toList())
-        );
+        assertEquals(expectedSubFolders, gotSubFolders);
     }
 
     @Test
@@ -195,7 +204,7 @@ class FolderServiceTest {
         testService.createFolderByParentId(testParentId, testForm);
 
         // then
-        ArgumentCaptor<Folder> folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
+        verify(mockFolderRepository).findById(testParentId);
         verify(mockFolderRepository, times(2)).save(folderArgumentCaptor.capture());
 
         Folder capturedFolder = folderArgumentCaptor.getAllValues().get(0);
@@ -226,8 +235,9 @@ class FolderServiceTest {
         // given
         String preservedRootName = "root";
         String blankFolderName = "";
-        String conflictingFolderName = "Test Java";
+        String conflictingFolderName = "Java";
         Long testParentId = savedFolderIds.get(0);
+        Folder testParent = savedFolders.get(0);
         FolderCreationForm testForm1 = FolderCreationForm
                 .builder()
                 .name(preservedRootName)
@@ -259,6 +269,7 @@ class FolderServiceTest {
                 () -> testService.createFolderByParentId(testParentId, testForm3));
 
         // then
+        verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, testParent);
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage2, exception2.getMessage());
         assertEquals(expectedMessage3, exception3.getMessage());
@@ -267,12 +278,12 @@ class FolderServiceTest {
     @Test
     void updateFolderById_Rename_Success() {
         // given
-        String testName = "New Name";
+        String newName = "New Name";
         Long testId = savedFolderIds.get(1);
         FolderUpdateForm testRenameForm = FolderUpdateForm
                 .builder()
                 .updateType("RENAME_FOLDER")
-                .newName(testName)
+                .newName(newName)
                 .build();
 
         // when
@@ -280,38 +291,42 @@ class FolderServiceTest {
         testService.updateFolderById(testId, testRenameForm);
 
         // then
-        ArgumentCaptor<Folder> folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
         verify(mockFolderRepository).findById(testId);
         verify(mockFolderRepository).save(folderArgumentCaptor.capture());
 
         Folder capturedFolder = folderArgumentCaptor.getValue();
-        assertEquals(testName, capturedFolder.getName());
+        assertEquals(newName, capturedFolder.getName());
     }
 
     @Test
     void updateFolderById_Move_Success() {
         // given
         Long testId = savedFolderIds.get(2);
-        Long testToId = savedFolderIds.get(1);
+        Long testToParentId = savedFolderIds.get(1);
         FolderUpdateForm testMoveForm = FolderUpdateForm
                 .builder()
                 .updateType("MOVE_FOLDER")
-                .toParentId(testToId)
+                .toParentId(testToParentId)
                 .build();
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(2)));
-        when(mockFolderRepository.findById(testToId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testToParentId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
         testService.updateFolderById(testId, testMoveForm);
 
         // then
-        ArgumentCaptor<Folder> folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
         verify(mockFolderRepository).findById(testId);
-        verify(mockFolderRepository).findById(testToId);
+        verify(mockFolderRepository).findById(testToParentId);
         verify(mockFolderRepository, times(3)).save(folderArgumentCaptor.capture());
 
         Folder capturedFolder = folderArgumentCaptor.getAllValues().get(2);
-        assertEquals(testToId, capturedFolder.getParentFolder().getId());
+        assertEquals(testToParentId, capturedFolder.getParentFolder().getId());
+
+        Folder capturedFromFolder = folderArgumentCaptor.getAllValues().get(0);
+        assertFalse(capturedFromFolder.getSubFolders().contains(capturedFolder));
+
+        Folder capturedToFolder = folderArgumentCaptor.getAllValues().get(1);
+        assertTrue(capturedToFolder.getSubFolders().contains(capturedFolder));
     }
 
     @Test
@@ -338,7 +353,7 @@ class FolderServiceTest {
         // given
         String preservedRootName = "root";
         String blankFolderName = "";
-        String conflictingFolderName = "Test Java";
+        String conflictingFolderName = "Java";
         Long rootId = savedFolderIds.get(0);
         Long testId = savedFolderIds.get(1);
         FolderUpdateForm testForm1 = FolderUpdateForm
@@ -379,6 +394,10 @@ class FolderServiceTest {
                 () -> testService.updateFolderById(testId, testForm3));
 
         // then
+        verify(mockFolderRepository).findById(rootId);
+        verify(mockFolderRepository, times(3)).findById(testId);
+        verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, savedFolders.get(0));
+
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage2, exception2.getMessage());
         assertEquals(expectedMessage3, exception3.getMessage());
@@ -445,11 +464,6 @@ class FolderServiceTest {
         String expectedMessage1 = "Cannot move folder to self. Abort.";
         String expectedMessage2 = "Destination folder identical as current parent folder. Abort.";
 
-        Logger logger = (Logger) LoggerFactory.getLogger(FolderService.class);
-        ListAppender<ILoggingEvent> loggingEventListAppender = new ListAppender<>();
-        loggingEventListAppender.start();
-        logger.addAppender(loggingEventListAppender);
-
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
         when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
@@ -457,6 +471,9 @@ class FolderServiceTest {
         testService.updateFolderById(testId, testForm2);
 
         // then
+        verify(mockFolderRepository, times(3)).findById(testId);
+        verify(mockFolderRepository).findById(testParentId);
+
         List<ILoggingEvent> loggingEvents = loggingEventListAppender.list;
         assertEquals(expectedMessage1, loggingEvents.get(1).getMessage());
         assertEquals(Level.ERROR, loggingEvents.get(1).getLevel());
