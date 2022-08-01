@@ -100,7 +100,7 @@ public class NoteService {
     @Transactional
     public Note updateNoteById(Long noteId, NoteUpdateForm updateForm) {
         log.info("Update note by id: {}, form: {}", noteId, updateForm);
-        boolean isUpdated = false;
+        ZonedDateTime now = ZonedDateTime.now();
         Note note = noteRepository
                 .findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
@@ -113,14 +113,14 @@ public class NoteService {
                     throw new NoteNameConflictException(newName);
                 }
                 note.setName(newName);
-                isUpdated = true;
             }
             case NoteUpdateType.MODIFY_CONTENT -> {
                 String newContent = updateForm.getNewContent();
-                if (!Objects.equals(newContent, note.getContent())) {
-                    note.setContent(newContent);
-                    isUpdated = true;
+                if (newContent.equals(note.getContent())) {
+                    log.error("New Content identical to the old. Abort.");
+                    return note;
                 }
+                note.setContent(newContent);
             }
             case NoteUpdateType.MOVE_NOTE -> {
                 Long toFolderId = updateForm.getToFolderId();
@@ -128,22 +128,24 @@ public class NoteService {
                         .findById(toFolderId)
                         .orElseThrow(() -> new FolderNotFoundException(toFolderId));
                 Folder fromFolder = note.getFolder();
-                if (toFolder != null && !Objects.equals(toFolder, fromFolder)) {
-                    note.setFolder(toFolder);
-                    note = noteRepository.save(note);
-
-                    List<Note> fromFolderNotes = fromFolder.getNotes();
-                    fromFolderNotes.remove(note);
-                    fromFolder.setNotes(fromFolderNotes);
-                    folderRepository.save(fromFolder);
-
-                    List<Note> toFolderNotes = toFolder.getNotes();
-                    toFolderNotes.add(note);
-                    toFolder.setNotes(toFolderNotes);
-                    folderRepository.save(toFolder);
-
-                    isUpdated = true;
+                if (Objects.equals(toFolder, fromFolder)) {
+                    log.error("Destination folder identical as current folder. Abort.");
+                    return note;
                 }
+                note.setFolder(toFolder);
+                note = noteRepository.save(note);
+
+                List<Note> fromFolderNotes = fromFolder.getNotes();
+                fromFolderNotes.remove(note);
+                fromFolder.setNotes(fromFolderNotes);
+                fromFolder.setUpdatedAt(now);
+                folderRepository.save(fromFolder);
+
+                List<Note> toFolderNotes = toFolder.getNotes();
+                toFolderNotes.add(note);
+                toFolder.setNotes(toFolderNotes);
+                toFolder.setUpdatedAt(now);
+                folderRepository.save(toFolder);
             }
             case NoteUpdateType.ADD_TAG -> {
                 Tag tag;
@@ -152,7 +154,6 @@ public class NoteService {
                 if (existsByName) {
                     tag = tagRepository.getByName(tagName);
                 } else {
-                    ZonedDateTime now = ZonedDateTime.now();
                     tag = Tag
                             .builder()
                             .name(tagName)
@@ -163,19 +164,19 @@ public class NoteService {
                     tag = tagRepository.save(tag);
                 }
                 if (note.getTags().contains(tag)) {
-                    break;
+                    log.error("Note already contains tag to add. Abort.");
+                    return note;
                 }
 
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.add(note);
                 tag.setNotes(tagNotes);
+                tag.setUpdatedAt(now);
+                tagRepository.save(tag);
 
                 List<Tag> noteTags = note.getTags();
                 noteTags.add(tag);
                 note.setTags(noteTags);
-
-                tagRepository.save(tag);
-                isUpdated = true;
             }
             case NoteUpdateType.REMOVE_TAG -> {
                 String tagName = updateForm.getTagName();
@@ -189,23 +190,17 @@ public class NoteService {
                 List<Note> tagNotes = tag.getNotes();
                 tagNotes.remove(note);
                 tag.setNotes(tagNotes);
+                tag.setUpdatedAt(now);
+                tagRepository.save(tag);
 
                 List<Tag> noteTags = note.getTags();
                 noteTags.remove(tag);
                 note.setTags(noteTags);
-
-                tagRepository.save(tag);
-                isUpdated = true;
             }
             default -> throw new IllegalArgumentException("Unsupported note update type.");
         }
-
-        if (isUpdated) {
-            ZonedDateTime now = ZonedDateTime.now();
-            note.setUpdatedAt(now);
-            note.getFolder().setUpdatedAt(now);
-        }
-
+        note.setUpdatedAt(now);
+        note.getFolder().setUpdatedAt(now);
         return noteRepository.save(note);
     }
 
