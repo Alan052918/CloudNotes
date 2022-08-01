@@ -15,5 +15,6 @@ public final class NoteCreationForm {
 
     @NotBlank
     private String name;
+    private String content;
 
 }
