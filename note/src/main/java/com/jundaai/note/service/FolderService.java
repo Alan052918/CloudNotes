@@ -124,10 +124,6 @@ public class FolderService {
                         .orElseThrow(() -> new FolderNotFoundException(toParentId));
                 Folder fromParent = folder.getParentFolder();
 
-                if (toParent == null) {
-                    log.error("Cannot move folder to null parent folder. Abort.");
-                    return folder;
-                }
                 if (Objects.equals(toParent, folder)) {
                     log.error("Cannot move folder to self. Abort.");
                     return folder;
@@ -153,7 +149,7 @@ public class FolderService {
                 folderRepository.save(fromParent);
                 folderRepository.save(toParent);
             }
-            default -> throw new IllegalArgumentException("Unsupported folder update type.");
+            default -> throw new IllegalArgumentException("Unsupported folder operation type.");
         }
         return folderRepository.save(folder);
     }
