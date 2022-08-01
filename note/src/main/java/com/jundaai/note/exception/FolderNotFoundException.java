@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class FolderNotFoundException extends RuntimeException {
 
     public FolderNotFoundException(Long folderId) {
-        super("Folder by id :" + folderId + " was not found.");
+        super("Folder by id: " + folderId + " was not found.");
     }
 
 }
