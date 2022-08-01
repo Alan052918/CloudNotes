@@ -115,7 +115,6 @@ public class FolderService {
                     throw new FolderNameConflictException(newName);
                 }
                 folder.setName(newName);
-                folder.setUpdatedAt(now);
             }
             case FolderOperationType.MOVE_FOLDER -> {
                 Long toParentId = updateForm.getToParentId();
@@ -134,23 +133,22 @@ public class FolderService {
                 }
 
                 folder.setParentFolder(toParent);
-                folder.setUpdatedAt(now);
 
                 List<Folder> fromParentSubFolders = fromParent.getSubFolders();
                 fromParentSubFolders.remove(folder);
                 fromParent.setSubFolders(fromParentSubFolders);
                 fromParent.setUpdatedAt(now);
+                folderRepository.save(fromParent);
 
                 List<Folder> toParentSubFolders = toParent.getSubFolders();
                 toParentSubFolders.add(folder);
                 toParent.setSubFolders(toParentSubFolders);
                 toParent.setUpdatedAt(now);
-
-                folderRepository.save(fromParent);
                 folderRepository.save(toParent);
             }
             default -> throw new IllegalArgumentException("Unsupported folder operation type.");
         }
+        folder.setUpdatedAt(now);
         return folderRepository.save(folder);
     }
 
