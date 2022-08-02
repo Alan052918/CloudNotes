@@ -2,10 +2,7 @@ package com.jundaai.note.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
@@ -67,6 +64,7 @@ public class Note {
             )
     )
     @JsonIgnore
+    @ToString.Exclude
     private List<Tag> tags;
 
 }
