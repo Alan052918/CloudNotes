@@ -1,8 +1,8 @@
 # CloudNotes
 
 [![Java CI with Maven](https://github.com/Alan052918/CloudNotes/actions/workflows/maven.yml/badge.svg)](https://github.com/Alan052918/CloudNotes/actions/workflows/maven.yml)
-![note Module Coverage](.github/badges/jacocoNote.svg)
-![note Module Branches](.github/badges/branchesNote.svg)
+[![Coverage](.github/badges/jacocoNote.svg)](https://github.com/Alan052918/CloudNotes/actions/workflows/build.yml)
+[![Coverage](.github/badges/branchesNote.svg)](https://github.com/Alan052918/CloudNotes/actions/workflows/build.yml)
 
 A simple RESTful service to organize notes with folders and hashtags, built with Spring Boot.
 
