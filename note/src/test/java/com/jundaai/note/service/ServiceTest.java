@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServiceTest {
+public abstract class ServiceTest {
 
     AutoCloseable autoCloseable;
 
