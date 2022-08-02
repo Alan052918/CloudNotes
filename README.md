@@ -1,5 +1,7 @@
 # CloudNotes
 
+[![Java CI with Maven](https://github.com/Alan052918/CloudNotes/actions/workflows/maven.yml/badge.svg)](https://github.com/Alan052918/CloudNotes/actions/workflows/maven.yml)
+
 A simple RESTful service to organize notes with folders and hashtags, built with Spring Boot.
 
 Key points for 9053 evaluation:
