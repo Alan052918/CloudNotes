@@ -9,11 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,44 +32,49 @@ public class TagController {
     }
 
     @GetMapping(path = "tags")
-    public CollectionModel<EntityModel<Tag>> getAllTags() {
+    public ResponseEntity<CollectionModel<EntityModel<Tag>>> getAllTags() {
         log.info("Request to get all tags");
-        List<Tag> tags = tagService.getAllTags();
-        return tagModelAssembler.toCollectionModel(tags);
+        final List<Tag> tags = tagService.getAllTags();
+        return ResponseEntity.ok(tagModelAssembler.toCollectionModel(tags));
     }
 
     @GetMapping(path = "notes/{noteId}/tags")
-    public CollectionModel<EntityModel<Tag>> getAllTagsByNoteId(@PathVariable(name = "noteId") Long noteId) {
+    public ResponseEntity<CollectionModel<EntityModel<Tag>>> getAllTagsByNoteId(
+            @PathVariable(name = "noteId") Long noteId
+    ) {
         log.info("Request to get all tags by note id: {}", noteId);
-        List<Tag> tags = tagService.getAllTagsByNoteId(noteId);
-        return tagModelAssembler.toCollectionModel(tags);
+        final List<Tag> tags = tagService.getAllTagsByNoteId(noteId);
+        return ResponseEntity.ok(tagModelAssembler.toCollectionModel(tags));
     }
 
     @GetMapping(path = "tags/{tagId}")
-    public EntityModel<Tag> getTagById(@PathVariable(name = "tagId") Long tagId) {
+    public ResponseEntity<EntityModel<Tag>> getTagById(@PathVariable(name = "tagId") Long tagId) {
         log.info("Request to get tag by id: {}", tagId);
-        Tag tag = tagService.getTagById(tagId);
-        return tagModelAssembler.toModel(tag);
+        final Tag tag = tagService.getTagById(tagId);
+        return ResponseEntity.ok(tagModelAssembler.toModel(tag));
     }
 
     @PostMapping(path = "tags")
-    @ResponseStatus(HttpStatus.CREATED)
-    public EntityModel<Tag> createTag(@Valid @RequestBody TagCreationForm creationForm) {
+    public ResponseEntity<EntityModel<Tag>> createTag(@Valid @RequestBody TagCreationForm creationForm) {
         log.info("Request to create new tag: {}", creationForm);
-        Tag tag = tagService.createTag(creationForm);
-        return tagModelAssembler.toModel(tag);
+        final Tag tag = tagService.createTag(creationForm);
+        final URI uri = MvcUriComponentsBuilder
+                .fromController(TagController.class)
+                .path("tags")
+                .buildAndExpand(tag.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(tagModelAssembler.toModel(tag));
     }
 
     @PatchMapping(path = "tags/{tagId}")
-    public EntityModel<Tag> updateTag(@PathVariable(name = "tagId") Long tagId,
-                                      @Valid @RequestBody TagUpdateForm updateForm) {
+    public ResponseEntity<EntityModel<Tag>> updateTag(@PathVariable(name = "tagId") Long tagId,
+                                                      @Valid @RequestBody TagUpdateForm updateForm) {
         log.info("Request to update tag by id: {}, form: {}", tagId, updateForm);
-        Tag tag = tagService.updateTagById(tagId, updateForm);
-        return tagModelAssembler.toModel(tag);
+        final Tag tag = tagService.updateTagById(tagId, updateForm);
+        return ResponseEntity.ok(tagModelAssembler.toModel(tag));
     }
 
     @DeleteMapping(path = "tags/{tagId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<?> deleteTagById(@PathVariable(name = "tagId") Long tagId) {
         log.info("Request to delete tag by id: {}", tagId);
         tagService.deleteTagById(tagId);
