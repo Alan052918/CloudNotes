@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class NoteServiceTest {
+public class NoteServiceTest {
 
     private AutoCloseable autoCloseable;
     private NoteService testService;
@@ -59,7 +59,7 @@ class NoteServiceTest {
     private List<Long> savedTagIds;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
         testService = new NoteService(mockFolderRepository, mockNoteRepository, mockTagRepository);
 
@@ -81,7 +81,7 @@ class NoteServiceTest {
         loadFoldersNotesAndTags();
     }
 
-    void loadFoldersNotesAndTags() {
+    private void loadFoldersNotesAndTags() {
         ZonedDateTime now = ZonedDateTime.now();
         Folder root = Folder
                 .builder()
@@ -156,12 +156,12 @@ class NoteServiceTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         autoCloseable.close();
     }
 
     @Test
-    void getAllNotes_Success() {
+    public void getAllNotes_Success() {
         // given
         List<Note> expectedNotes = savedNotes;
 
@@ -175,7 +175,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getAllNotesByFolderId_Success() {
+    public void getAllNotesByFolderId_Success() {
         // given
         Long testId = savedFolderIds.get(1);
         List<Note> expectedNotes = savedNotes;
@@ -190,7 +190,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getAllNotesByFolderId_NotExistingFolderId_ExceptionThrown() {
+    public void getAllNotesByFolderId_NotExistingFolderId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
@@ -205,7 +205,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getAllNotesByTagId_Success() {
+    public void getAllNotesByTagId_Success() {
         // given
         Long testId = savedTagIds.get(0);
         List<Note> expectedNotes = savedNotes;
@@ -220,7 +220,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getAllNotesByTagId_NotExistingTagId_ExceptionThrown() {
+    public void getAllNotesByTagId_NotExistingTagId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Tag by id: " + notExistingId + " was not found.";
@@ -235,7 +235,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getNoteById_Success() {
+    public void getNoteById_Success() {
         // given
         Long testId = savedNoteIds.get(0);
         Note expectedNote = savedNotes.get(0);
@@ -250,7 +250,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void getNoteById_NotExistingId_ExceptionThrown() {
+    public void getNoteById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Note by id: " + notExistingId + " was not found.";
@@ -265,7 +265,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void createNoteByFolderId_Success() {
+    public void createNoteByFolderId_Success() {
         // given
         String testName = "New Note";
         String testContent = "This is a new note.";
@@ -292,7 +292,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void createNoteByFolderId_NotExistingFolderId_ExceptionThrown() {
+    public void createNoteByFolderId_NotExistingFolderId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         NoteCreationForm testForm = NoteCreationForm
@@ -312,7 +312,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void createNoteByFolderId_ConflictingNoteName_ExceptionThrown() {
+    public void createNoteByFolderId_ConflictingNoteName_ExceptionThrown() {
         // given
         String conflictingNoteName = "Go";
         Long testFolderId = savedFolderIds.get(1);
@@ -338,7 +338,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_Rename_Success() {
+    public void updateNoteById_Rename_Success() {
         // given
         String newName = "New Name";
         Long testId = savedNoteIds.get(0);
@@ -363,7 +363,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_ChangeContent_Success() {
+    public void updateNoteById_ChangeContent_Success() {
         // given
         String newContent = "New Content";
         Long testId = savedNoteIds.get(0);
@@ -386,7 +386,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_Move_Success() {
+    public void updateNoteById_Move_Success() {
         // given
         Long testId = savedNoteIds.get(0);
         Long testToFolderId = savedFolderIds.get(0);
@@ -418,7 +418,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_AddNewTag_Success() {
+    public void updateNoteById_AddNewTag_Success() {
         // given
         String newTagName = "New Tag";
         NoteUpdateForm testForm = NoteUpdateForm
@@ -457,7 +457,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_AddExistingTag_Success() {
+    public void updateNoteById_AddExistingTag_Success() {
         // given
         String existingTagName = "Microsoft";
         NoteUpdateForm testForm = NoteUpdateForm
@@ -490,7 +490,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_RemoveOldTag_Success() {
+    public void updateNoteById_RemoveOldTag_Success() {
         // given
         String oldTagName = "Google";
         NoteUpdateForm testForm = NoteUpdateForm
@@ -521,7 +521,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_NotExistingId_ExceptionThrown() {
+    public void updateNoteById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Note by id: " + notExistingId + " was not found.";
@@ -536,7 +536,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_ConflictingNewName_ExceptionThrown() {
+    public void updateNoteById_ConflictingNewName_ExceptionThrown() {
         // given
         Long testId = savedNoteIds.get(0);
         String conflictingNewName = "Go";
@@ -561,7 +561,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_SetIdenticalContent_Aborted() {
+    public void updateNoteById_SetIdenticalContent_Aborted() {
         // given
         Long testId = savedNoteIds.get(0);
         Note testNote = savedNotes.get(0);
@@ -584,7 +584,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_InvalidMoveToFolder_ExceptionThrownOrAborted() {
+    public void updateNoteById_InvalidMoveToFolder_ExceptionThrownOrAborted() {
         // given
         Long testId = savedNoteIds.get(0);
         Long notExistingId = -1L;
@@ -623,7 +623,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_AddOldTag_Aborted() {
+    public void updateNoteById_AddOldTag_Aborted() {
         // given
         Long testId = savedNoteIds.get(0);
         String oldTagName = "Google";
@@ -651,7 +651,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_InvalidRemoveTag_ExceptionThrown() {
+    public void updateNoteById_InvalidRemoveTag_ExceptionThrown() {
         // given
         Long testId = savedNoteIds.get(0);
         Note testNote = savedNotes.get(0);
@@ -690,7 +690,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void updateNoteById_UnsupportedNoteUpdateType_ExceptionThrown() {
+    public void updateNoteById_UnsupportedNoteUpdateType_ExceptionThrown() {
         // given
         Long testId = savedNoteIds.get(0);
         NoteUpdateForm testForm = NoteUpdateForm
@@ -710,7 +710,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void deleteNoteById_Success() {
+    public void deleteNoteById_Success() {
         // given
         Long testId = savedNoteIds.get(0);
         Note testNote = savedNotes.get(0);
@@ -731,7 +731,7 @@ class NoteServiceTest {
     }
 
     @Test
-    void deleteNoteById_NotExistingId_ExceptionThrown() {
+    public void deleteNoteById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Note by id: " + notExistingId + " was not found.";

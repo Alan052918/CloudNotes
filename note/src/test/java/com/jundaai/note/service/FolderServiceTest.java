@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class FolderServiceTest {
+public class FolderServiceTest {
 
     private AutoCloseable autoCloseable;
     private FolderService testService;
@@ -49,7 +49,7 @@ class FolderServiceTest {
     private List<Long> savedFolderIds;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
         testService = new FolderService(mockFolderRepository);
         folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
@@ -64,7 +64,7 @@ class FolderServiceTest {
         loadFolders();
     }
 
-    void loadFolders() {
+    private void loadFolders() {
         ZonedDateTime now = ZonedDateTime.now();
         Folder root = Folder
                 .builder()
@@ -110,12 +110,12 @@ class FolderServiceTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         autoCloseable.close();
     }
 
     @Test
-    void getAllFolders_Success() {
+    public void getAllFolders_Success() {
         // given
         List<Folder> expectedFolders = savedFolders;
 
@@ -129,7 +129,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void getFolderById_Success() {
+    public void getFolderById_Success() {
         // given
         Long testId = savedFolderIds.get(0);
         Folder expectedFolder = savedFolders.get(0);
@@ -144,7 +144,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void getFolderById_NotExistingId_ExceptionThrown() {
+    public void getFolderById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
@@ -159,7 +159,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void getSubFoldersByParentId_Success() {
+    public void getSubFoldersByParentId_Success() {
         // given
         Long testParentId = savedFolderIds.get(0);
         List<Folder> expectedSubFolders = Arrays.asList(savedFolders.get(1), savedFolders.get(2));
@@ -175,7 +175,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void getSubFoldersByParentId_NotExistingParentId_ExceptionThrown() {
+    public void getSubFoldersByParentId_NotExistingParentId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
@@ -190,7 +190,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void createFolderByParentId_Success() {
+    public void createFolderByParentId_Success() {
         // given
         String testName = "Test Folder";
         Long testParentId = savedFolderIds.get(0);
@@ -212,7 +212,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void createFolderByParentId_NotExistingParentId_ExceptionThrown() {
+    public void createFolderByParentId_NotExistingParentId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         FolderCreationForm testForm = FolderCreationForm
@@ -231,7 +231,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void createFolderByParentId_InvalidFolderName_ExceptionThrown() {
+    public void createFolderByParentId_InvalidFolderName_ExceptionThrown() {
         // given
         String preservedRootName = "root";
         String blankFolderName = "";
@@ -276,7 +276,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_Rename_Success() {
+    public void updateFolderById_Rename_Success() {
         // given
         String newName = "New Name";
         Long testId = savedFolderIds.get(1);
@@ -299,7 +299,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_Move_Success() {
+    public void updateFolderById_Move_Success() {
         // given
         Long testId = savedFolderIds.get(2);
         Long testToParentId = savedFolderIds.get(1);
@@ -330,7 +330,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_NotExistingId_ExceptionThrown() {
+    public void updateFolderById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         FolderUpdateForm testForm = FolderUpdateForm
@@ -349,7 +349,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_InvalidNewName_ExceptionThrown() {
+    public void updateFolderById_InvalidNewName_ExceptionThrown() {
         // given
         String preservedRootName = "root";
         String blankFolderName = "";
@@ -405,7 +405,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_NotExistingToParentId_ExceptionThrown() {
+    public void updateFolderById_NotExistingToParentId_ExceptionThrown() {
         // given
         Long testId = savedFolderIds.get(1);
         Long notExistingId = -1L;
@@ -427,7 +427,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_UnsupportedFolderOperationType_ExceptionThrown() {
+    public void updateFolderById_UnsupportedFolderOperationType_ExceptionThrown() {
         // given
         Long testId = savedFolderIds.get(1);
         FolderUpdateForm testForm = FolderUpdateForm
@@ -447,7 +447,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void updateFolderById_InvalidToParentFolder_Aborted() {
+    public void updateFolderById_InvalidToParentFolder_Aborted() {
         // given
         Long testId = savedFolderIds.get(1);
         Long testParentId = savedFolderIds.get(0);
@@ -482,7 +482,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void deleteFolderById_Success() {
+    public void deleteFolderById_Success() {
         // given
         Long testId = savedFolderIds.get(1);
 
@@ -495,7 +495,7 @@ class FolderServiceTest {
     }
 
     @Test
-    void deleteFolderById_InvalidFolderId_ExceptionThrown() {
+    public void deleteFolderById_InvalidFolderId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
         Long rootId = savedFolderIds.get(0);
