@@ -46,10 +46,9 @@ public class FolderRepositoryTest extends RepositoryTest {
     }
 
     @Test
-    public void findSubFoldersByParentId_NotExistingParentId_NullFound() {
+    public void findSubFoldersByParentId_NotExistingParentId_EmptyListReturned() {
         // given
         Long notExistingId = -1L;
-        testRepository.findAll().forEach(folder -> System.out.println(folder.getId()));
 
         // when
         List<Folder> gotFolders = testRepository.findSubFoldersByParentId(notExistingId).orElse(null);
