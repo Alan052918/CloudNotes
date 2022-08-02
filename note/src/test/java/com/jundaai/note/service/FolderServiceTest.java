@@ -34,7 +34,6 @@ public class FolderServiceTest extends ServiceTest {
     void setUp() {
         super.setUp();
         testService = new FolderService(mockFolderRepository);
-
         Logger logger = (Logger) LoggerFactory.getLogger(FolderService.class);
         logger.addAppender(loggingEventListAppender);
     }

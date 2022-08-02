@@ -34,7 +34,6 @@ public class NoteServiceTest extends ServiceTest {
     void setUp() {
         super.setUp();
         testService = new NoteService(mockFolderRepository, mockNoteRepository, mockTagRepository);
-
         Logger logger = (Logger) LoggerFactory.getLogger(NoteService.class);
         logger.addAppender(loggingEventListAppender);
     }
