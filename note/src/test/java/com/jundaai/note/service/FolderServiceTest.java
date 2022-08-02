@@ -3,7 +3,6 @@ package com.jundaai.note.service;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
@@ -12,106 +11,32 @@ import com.jundaai.note.form.folder.FolderCreationForm;
 import com.jundaai.note.form.folder.FolderOperationType;
 import com.jundaai.note.form.folder.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
-import com.jundaai.note.repository.FolderRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FolderServiceTest {
+public class FolderServiceTest extends ServiceTest {
 
-    private AutoCloseable autoCloseable;
     private FolderService testService;
 
-    @Mock
-    private FolderRepository mockFolderRepository;
-
-    private ArgumentCaptor<Folder> folderArgumentCaptor;
-    private ListAppender<ILoggingEvent> loggingEventListAppender;
-
-    private List<Folder> mockFolders;
-    private List<Long> mockFolderIds;
-
+    @Override
     @BeforeEach
-    public void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
+    void setUp() {
+        super.setUp();
         testService = new FolderService(mockFolderRepository);
-        folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
 
         Logger logger = (Logger) LoggerFactory.getLogger(FolderService.class);
-        loggingEventListAppender = new ListAppender<>();
-        loggingEventListAppender.start();
         logger.addAppender(loggingEventListAppender);
-
-        mockFolders = new ArrayList<>();
-        mockFolderIds = new ArrayList<>();
-        loadFolders();
-    }
-
-    private void loadFolders() {
-        ZonedDateTime now = ZonedDateTime.now();
-        Folder root = Folder
-                .builder()
-                .id(0L)
-                .name("root")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(null)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        Folder java = Folder
-                .builder()
-                .id(1L)
-                .name("Java")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(root)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        Folder swift = Folder
-                .builder()
-                .id(2L)
-                .name("Swift")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(root)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        List<Folder> subFolders = root.getSubFolders();
-        subFolders.add(java);
-        subFolders.add(swift);
-        root.setSubFolders(subFolders);
-        mockFolders.add(root);
-        mockFolders.add(java);
-        mockFolders.add(swift);
-        mockFolderIds = mockFolders
-                .stream()
-                .map(Folder::getId)
-                .collect(Collectors.toList());
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        autoCloseable.close();
     }
 
     @Test

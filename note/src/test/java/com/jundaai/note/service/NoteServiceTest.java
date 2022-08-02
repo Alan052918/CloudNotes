@@ -3,7 +3,6 @@ package com.jundaai.note.service;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.jundaai.note.exception.*;
 import com.jundaai.note.form.note.NoteCreationForm;
 import com.jundaai.note.form.note.NoteUpdateForm;
@@ -11,16 +10,9 @@ import com.jundaai.note.form.note.NoteUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
-import com.jundaai.note.repository.FolderRepository;
-import com.jundaai.note.repository.NoteRepository;
-import com.jundaai.note.repository.TagRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 
@@ -28,136 +20,23 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class NoteServiceTest {
+public class NoteServiceTest extends ServiceTest {
 
-    private AutoCloseable autoCloseable;
     private NoteService testService;
 
-    @Mock
-    private FolderRepository mockFolderRepository;
-    @Mock
-    private NoteRepository mockNoteRepository;
-    @Mock
-    private TagRepository mockTagRepository;
-
-    private ArgumentCaptor<Folder> folderArgumentCaptor;
-    private ArgumentCaptor<Note> noteArgumentCaptor;
-    private ArgumentCaptor<Tag> tagArgumentCaptor;
-    private ListAppender<ILoggingEvent> loggingEventListAppender;
-
-    private List<Folder> mockFolders;
-    private List<Note> mockNotes;
-    private List<Tag> mockTags;
-    private List<Long> mockFolderIds;
-    private List<Long> mockNoteIds;
-    private List<Long> mockTagIds;
-
+    @Override
     @BeforeEach
-    public void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
+    void setUp() {
+        super.setUp();
         testService = new NoteService(mockFolderRepository, mockNoteRepository, mockTagRepository);
 
-        folderArgumentCaptor = ArgumentCaptor.forClass(Folder.class);
-        noteArgumentCaptor = ArgumentCaptor.forClass(Note.class);
-        tagArgumentCaptor = ArgumentCaptor.forClass(Tag.class);
-
         Logger logger = (Logger) LoggerFactory.getLogger(NoteService.class);
-        loggingEventListAppender = new ListAppender<>();
-        loggingEventListAppender.start();
         logger.addAppender(loggingEventListAppender);
-
-        mockFolders = new ArrayList<>();
-        mockNotes = new ArrayList<>();
-        mockTags = new ArrayList<>();
-        mockFolderIds = new ArrayList<>();
-        mockNoteIds = new ArrayList<>();
-        mockTagIds = new ArrayList<>();
-        loadFoldersNotesAndTags();
-    }
-
-    private void loadFoldersNotesAndTags() {
-        ZonedDateTime now = ZonedDateTime.now();
-        Folder root = Folder
-                .builder()
-                .id(0L)
-                .name("root")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(null)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        Folder pl = Folder
-                .builder()
-                .id(1L)
-                .name("Programming Languages")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(root)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        Note go = Note
-                .builder()
-                .id(2L)
-                .name("Go")
-                .content("Go is a general purpose programming language.")
-                .createdAt(now)
-                .updatedAt(now)
-                .folder(pl)
-                .tags(new ArrayList<>())
-                .build();
-        Tag google = Tag
-                .builder()
-                .id(3L)
-                .name("Google")
-                .createdAt(now)
-                .updatedAt(now)
-                .notes(new ArrayList<>())
-                .build();
-        Tag microsoft = Tag
-                .builder()
-                .id(4L)
-                .name("Microsoft")
-                .createdAt(now)
-                .updatedAt(now)
-                .notes(new ArrayList<>())
-                .build();
-        List<Tag> tags = go.getTags();
-        tags.add(google);
-        go.setTags(tags);
-        List<Note> notes = new ArrayList<>();
-        notes.add(go);
-        pl.setNotes(notes);
-        google.setNotes(notes);
-        mockFolders.add(root);
-        mockFolders.add(pl);
-        mockNotes.add(go);
-        mockTags.add(google);
-        mockTags.add(microsoft);
-        mockFolderIds = mockFolders
-                .stream()
-                .map(Folder::getId)
-                .collect(Collectors.toList());
-        mockNoteIds = mockNotes
-                .stream()
-                .map(Note::getId)
-                .collect(Collectors.toList());
-        mockTagIds = mockTags
-                .stream()
-                .map(Tag::getId)
-                .collect(Collectors.toList());
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        autoCloseable.close();
     }
 
     @Test
