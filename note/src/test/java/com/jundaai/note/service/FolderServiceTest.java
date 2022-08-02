@@ -45,8 +45,8 @@ public class FolderServiceTest {
     private ArgumentCaptor<Folder> folderArgumentCaptor;
     private ListAppender<ILoggingEvent> loggingEventListAppender;
 
-    private List<Folder> savedFolders;
-    private List<Long> savedFolderIds;
+    private List<Folder> mockFolders;
+    private List<Long> mockFolderIds;
 
     @BeforeEach
     public void setUp() {
@@ -59,8 +59,8 @@ public class FolderServiceTest {
         loggingEventListAppender.start();
         logger.addAppender(loggingEventListAppender);
 
-        savedFolders = new ArrayList<>();
-        savedFolderIds = new ArrayList<>();
+        mockFolders = new ArrayList<>();
+        mockFolderIds = new ArrayList<>();
         loadFolders();
     }
 
@@ -100,10 +100,10 @@ public class FolderServiceTest {
         subFolders.add(java);
         subFolders.add(swift);
         root.setSubFolders(subFolders);
-        savedFolders.add(root);
-        savedFolders.add(java);
-        savedFolders.add(swift);
-        savedFolderIds = savedFolders
+        mockFolders.add(root);
+        mockFolders.add(java);
+        mockFolders.add(swift);
+        mockFolderIds = mockFolders
                 .stream()
                 .map(Folder::getId)
                 .collect(Collectors.toList());
@@ -117,10 +117,10 @@ public class FolderServiceTest {
     @Test
     public void getAllFolders_Success() {
         // given
-        List<Folder> expectedFolders = savedFolders;
+        List<Folder> expectedFolders = mockFolders;
 
         // when
-        when(mockFolderRepository.findAll()).thenReturn(savedFolders);
+        when(mockFolderRepository.findAll()).thenReturn(mockFolders);
         List<Folder> gotFolders = testService.getAllFolders();
 
         // then
@@ -131,11 +131,11 @@ public class FolderServiceTest {
     @Test
     public void getFolderById_Success() {
         // given
-        Long testId = savedFolderIds.get(0);
-        Folder expectedFolder = savedFolders.get(0);
+        Long testId = mockFolderIds.get(0);
+        Folder expectedFolder = mockFolders.get(0);
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Folder gotFolder = testService.getFolderById(testId);
 
         // then
@@ -161,12 +161,12 @@ public class FolderServiceTest {
     @Test
     public void getSubFoldersByParentId_Success() {
         // given
-        Long testParentId = savedFolderIds.get(0);
-        List<Folder> expectedSubFolders = Arrays.asList(savedFolders.get(1), savedFolders.get(2));
+        Long testParentId = mockFolderIds.get(0);
+        List<Folder> expectedSubFolders = Arrays.asList(mockFolders.get(1), mockFolders.get(2));
 
         // when
         when(mockFolderRepository.findSubFoldersByParentId(testParentId))
-                .thenReturn(Optional.of(Arrays.asList(savedFolders.get(1), savedFolders.get(2))));
+                .thenReturn(Optional.of(Arrays.asList(mockFolders.get(1), mockFolders.get(2))));
         List<Folder> gotSubFolders = testService.getSubFoldersByParentId(testParentId);
 
         // then
@@ -193,14 +193,14 @@ public class FolderServiceTest {
     public void createFolderByParentId_Success() {
         // given
         String testName = "Test Folder";
-        Long testParentId = savedFolderIds.get(0);
+        Long testParentId = mockFolderIds.get(0);
         FolderCreationForm testForm = FolderCreationForm
                 .builder()
                 .name(testName)
                 .build();
 
         // when
-        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         testService.createFolderByParentId(testParentId, testForm);
 
         // then
@@ -236,8 +236,8 @@ public class FolderServiceTest {
         String preservedRootName = "root";
         String blankFolderName = "";
         String conflictingFolderName = "Java";
-        Long testParentId = savedFolderIds.get(0);
-        Folder testParent = savedFolders.get(0);
+        Long testParentId = mockFolderIds.get(0);
+        Folder testParent = mockFolders.get(0);
         FolderCreationForm testForm1 = FolderCreationForm
                 .builder()
                 .name(preservedRootName)
@@ -257,13 +257,13 @@ public class FolderServiceTest {
 
 
         // when
-        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Exception exception1 = assertThrows(RootPreservationException.class,
                 () -> testService.createFolderByParentId(testParentId, testForm1));
         Exception exception2 = assertThrows(FolderNameBlankException.class,
                 () -> testService.createFolderByParentId(testParentId, testForm2));
 
-        when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, savedFolders.get(0)))
+        when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0)))
                 .thenReturn(true);
         Exception exception3 = assertThrows(FolderNameConflictException.class,
                 () -> testService.createFolderByParentId(testParentId, testForm3));
@@ -279,7 +279,7 @@ public class FolderServiceTest {
     public void updateFolderById_Rename_Success() {
         // given
         String newName = "New Name";
-        Long testId = savedFolderIds.get(1);
+        Long testId = mockFolderIds.get(1);
         FolderUpdateForm testRenameForm = FolderUpdateForm
                 .builder()
                 .updateType("RENAME_FOLDER")
@@ -287,7 +287,7 @@ public class FolderServiceTest {
                 .build();
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         testService.updateFolderById(testId, testRenameForm);
 
         // then
@@ -301,8 +301,8 @@ public class FolderServiceTest {
     @Test
     public void updateFolderById_Move_Success() {
         // given
-        Long testId = savedFolderIds.get(2);
-        Long testToParentId = savedFolderIds.get(1);
+        Long testId = mockFolderIds.get(2);
+        Long testToParentId = mockFolderIds.get(1);
         FolderUpdateForm testMoveForm = FolderUpdateForm
                 .builder()
                 .updateType("MOVE_FOLDER")
@@ -310,8 +310,8 @@ public class FolderServiceTest {
                 .build();
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(2)));
-        when(mockFolderRepository.findById(testToParentId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(2)));
+        when(mockFolderRepository.findById(testToParentId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         testService.updateFolderById(testId, testMoveForm);
 
         // then
@@ -354,8 +354,8 @@ public class FolderServiceTest {
         String preservedRootName = "root";
         String blankFolderName = "";
         String conflictingFolderName = "Java";
-        Long rootId = savedFolderIds.get(0);
-        Long testId = savedFolderIds.get(1);
+        Long rootId = mockFolderIds.get(0);
+        Long testId = mockFolderIds.get(1);
         FolderUpdateForm testForm1 = FolderUpdateForm
                 .builder()
                 .updateType(FolderOperationType.RENAME_FOLDER)
@@ -378,17 +378,17 @@ public class FolderServiceTest {
                 " conflicts with an existing folder under the same parent.";
 
         // when
-        when(mockFolderRepository.findById(rootId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(rootId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Exception exception1 = assertThrows(RootPreservationException.class,
                 () -> testService.updateFolderById(rootId, FolderUpdateForm.builder().build()));
 
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         Exception exception2 = assertThrows(RootPreservationException.class,
                 () -> testService.updateFolderById(testId, testForm1));
         Exception exception3 = assertThrows(FolderNameBlankException.class,
                 () -> testService.updateFolderById(testId, testForm2));
 
-        when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, savedFolders.get(0)))
+        when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0)))
                 .thenReturn(true);
         Exception exception4 = assertThrows(FolderNameConflictException.class,
                 () -> testService.updateFolderById(testId, testForm3));
@@ -396,7 +396,7 @@ public class FolderServiceTest {
         // then
         verify(mockFolderRepository).findById(rootId);
         verify(mockFolderRepository, times(3)).findById(testId);
-        verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, savedFolders.get(0));
+        verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0));
 
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage2, exception2.getMessage());
@@ -407,7 +407,7 @@ public class FolderServiceTest {
     @Test
     public void updateFolderById_NotExistingToParentId_ExceptionThrown() {
         // given
-        Long testId = savedFolderIds.get(1);
+        Long testId = mockFolderIds.get(1);
         Long notExistingId = -1L;
         FolderUpdateForm testForm = FolderUpdateForm
                 .builder()
@@ -417,7 +417,7 @@ public class FolderServiceTest {
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         Exception exception = assertThrows(FolderNotFoundException.class,
                 () -> testService.updateFolderById(testId, testForm));
 
@@ -429,7 +429,7 @@ public class FolderServiceTest {
     @Test
     public void updateFolderById_UnsupportedFolderOperationType_ExceptionThrown() {
         // given
-        Long testId = savedFolderIds.get(1);
+        Long testId = mockFolderIds.get(1);
         FolderUpdateForm testForm = FolderUpdateForm
                 .builder()
                 .updateType(FolderOperationType.CREATE_FOLDER)
@@ -437,7 +437,7 @@ public class FolderServiceTest {
         String expectedMessage = "Unsupported folder operation type.";
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> testService.updateFolderById(testId, testForm));
 
@@ -449,8 +449,8 @@ public class FolderServiceTest {
     @Test
     public void updateFolderById_InvalidToParentFolder_Aborted() {
         // given
-        Long testId = savedFolderIds.get(1);
-        Long testParentId = savedFolderIds.get(0);
+        Long testId = mockFolderIds.get(1);
+        Long testParentId = mockFolderIds.get(0);
         FolderUpdateForm testForm1 = FolderUpdateForm
                 .builder()
                 .updateType(FolderOperationType.MOVE_FOLDER)
@@ -465,8 +465,8 @@ public class FolderServiceTest {
         String expectedMessage2 = "Destination folder identical as current parent folder. Abort.";
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
-        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
+        when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         testService.updateFolderById(testId, testForm1);
         testService.updateFolderById(testId, testForm2);
 
@@ -484,10 +484,10 @@ public class FolderServiceTest {
     @Test
     public void deleteFolderById_Success() {
         // given
-        Long testId = savedFolderIds.get(1);
+        Long testId = mockFolderIds.get(1);
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         testService.deleteFolderById(testId);
 
         // then
@@ -498,7 +498,7 @@ public class FolderServiceTest {
     public void deleteFolderById_InvalidFolderId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        Long rootId = savedFolderIds.get(0);
+        Long rootId = mockFolderIds.get(0);
         String expectedMessage1 = "Folder by id: " + notExistingId + " was not found.";
         String expectedMessage2 = "Root folder is preserved, " + FolderOperationType.DELETE_FOLDER + " failed.";
 
@@ -506,7 +506,7 @@ public class FolderServiceTest {
         Exception exception1 = assertThrows(FolderNotFoundException.class,
                 () -> testService.deleteFolderById(notExistingId));
 
-        when(mockFolderRepository.findById(rootId)).thenReturn(Optional.ofNullable(savedFolders.get(0)));
+        when(mockFolderRepository.findById(rootId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Exception exception2 = assertThrows(RootPreservationException.class,
                 () -> testService.deleteFolderById(rootId));
 

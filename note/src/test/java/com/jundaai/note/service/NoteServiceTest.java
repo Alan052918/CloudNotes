@@ -51,12 +51,12 @@ public class NoteServiceTest {
     private ArgumentCaptor<Tag> tagArgumentCaptor;
     private ListAppender<ILoggingEvent> loggingEventListAppender;
 
-    private List<Folder> savedFolders;
-    private List<Note> savedNotes;
-    private List<Tag> savedTags;
-    private List<Long> savedFolderIds;
-    private List<Long> savedNoteIds;
-    private List<Long> savedTagIds;
+    private List<Folder> mockFolders;
+    private List<Note> mockNotes;
+    private List<Tag> mockTags;
+    private List<Long> mockFolderIds;
+    private List<Long> mockNoteIds;
+    private List<Long> mockTagIds;
 
     @BeforeEach
     public void setUp() {
@@ -72,12 +72,12 @@ public class NoteServiceTest {
         loggingEventListAppender.start();
         logger.addAppender(loggingEventListAppender);
 
-        savedFolders = new ArrayList<>();
-        savedNotes = new ArrayList<>();
-        savedTags = new ArrayList<>();
-        savedFolderIds = new ArrayList<>();
-        savedNoteIds = new ArrayList<>();
-        savedTagIds = new ArrayList<>();
+        mockFolders = new ArrayList<>();
+        mockNotes = new ArrayList<>();
+        mockTags = new ArrayList<>();
+        mockFolderIds = new ArrayList<>();
+        mockNoteIds = new ArrayList<>();
+        mockTagIds = new ArrayList<>();
         loadFoldersNotesAndTags();
     }
 
@@ -136,20 +136,20 @@ public class NoteServiceTest {
         notes.add(go);
         pl.setNotes(notes);
         google.setNotes(notes);
-        savedFolders.add(root);
-        savedFolders.add(pl);
-        savedNotes.add(go);
-        savedTags.add(google);
-        savedTags.add(microsoft);
-        savedFolderIds = savedFolders
+        mockFolders.add(root);
+        mockFolders.add(pl);
+        mockNotes.add(go);
+        mockTags.add(google);
+        mockTags.add(microsoft);
+        mockFolderIds = mockFolders
                 .stream()
                 .map(Folder::getId)
                 .collect(Collectors.toList());
-        savedNoteIds = savedNotes
+        mockNoteIds = mockNotes
                 .stream()
                 .map(Note::getId)
                 .collect(Collectors.toList());
-        savedTagIds = savedTags
+        mockTagIds = mockTags
                 .stream()
                 .map(Tag::getId)
                 .collect(Collectors.toList());
@@ -163,10 +163,10 @@ public class NoteServiceTest {
     @Test
     public void getAllNotes_Success() {
         // given
-        List<Note> expectedNotes = savedNotes;
+        List<Note> expectedNotes = mockNotes;
 
         // when
-        when(mockNoteRepository.findAll()).thenReturn(savedNotes);
+        when(mockNoteRepository.findAll()).thenReturn(mockNotes);
         List<Note> gotNotes = testService.getAllNotes();
 
         // then
@@ -177,11 +177,11 @@ public class NoteServiceTest {
     @Test
     public void getAllNotesByFolderId_Success() {
         // given
-        Long testId = savedFolderIds.get(1);
-        List<Note> expectedNotes = savedNotes;
+        Long testId = mockFolderIds.get(1);
+        List<Note> expectedNotes = mockNotes;
 
         // when
-        when(mockFolderRepository.findById(testId)).thenReturn(Optional.of(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testId)).thenReturn(Optional.of(mockFolders.get(1)));
         List<Note> gotNotes = testService.getAllNotesByFolderId(testId);
 
         // then
@@ -207,11 +207,11 @@ public class NoteServiceTest {
     @Test
     public void getAllNotesByTagId_Success() {
         // given
-        Long testId = savedTagIds.get(0);
-        List<Note> expectedNotes = savedNotes;
+        Long testId = mockTagIds.get(0);
+        List<Note> expectedNotes = mockNotes;
 
         // when
-        when(mockTagRepository.findById(testId)).thenReturn(Optional.of(savedTags.get(0)));
+        when(mockTagRepository.findById(testId)).thenReturn(Optional.of(mockTags.get(0)));
         List<Note> gotNotes = testService.getAllNotesByTagId(testId);
 
         // then
@@ -237,8 +237,8 @@ public class NoteServiceTest {
     @Test
     public void getNoteById_Success() {
         // given
-        Long testId = savedNoteIds.get(0);
-        Note expectedNote = savedNotes.get(0);
+        Long testId = mockNoteIds.get(0);
+        Note expectedNote = mockNotes.get(0);
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(expectedNote));
@@ -269,8 +269,8 @@ public class NoteServiceTest {
         // given
         String testName = "New Note";
         String testContent = "This is a new note.";
-        Long testFolderId = savedFolderIds.get(0);
-        Folder testFolder = savedFolders.get(0);
+        Long testFolderId = mockFolderIds.get(0);
+        Folder testFolder = mockFolders.get(0);
         NoteCreationForm testForm = NoteCreationForm
                 .builder()
                 .name(testName)
@@ -315,8 +315,8 @@ public class NoteServiceTest {
     public void createNoteByFolderId_ConflictingNoteName_ExceptionThrown() {
         // given
         String conflictingNoteName = "Go";
-        Long testFolderId = savedFolderIds.get(1);
-        Folder testFolder = savedFolders.get(1);
+        Long testFolderId = mockFolderIds.get(1);
+        Folder testFolder = mockFolders.get(1);
         NoteCreationForm testForm = NoteCreationForm
                 .builder()
                 .name(conflictingNoteName)
@@ -341,8 +341,8 @@ public class NoteServiceTest {
     public void updateNoteById_Rename_Success() {
         // given
         String newName = "New Name";
-        Long testId = savedNoteIds.get(0);
-        Folder testFolder = savedFolders.get(1);
+        Long testId = mockNoteIds.get(0);
+        Folder testFolder = mockFolders.get(1);
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
                 .updateType(NoteUpdateType.RENAME_NOTE)
@@ -350,7 +350,7 @@ public class NoteServiceTest {
                 .build();
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         testService.updateNoteById(testId, testForm);
 
         // then
@@ -366,7 +366,7 @@ public class NoteServiceTest {
     public void updateNoteById_ChangeContent_Success() {
         // given
         String newContent = "New Content";
-        Long testId = savedNoteIds.get(0);
+        Long testId = mockNoteIds.get(0);
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
                 .updateType(NoteUpdateType.MODIFY_CONTENT)
@@ -374,7 +374,7 @@ public class NoteServiceTest {
                 .build();
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         testService.updateNoteById(testId, testForm);
 
         // then
@@ -388,8 +388,8 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_Move_Success() {
         // given
-        Long testId = savedNoteIds.get(0);
-        Long testToFolderId = savedFolderIds.get(0);
+        Long testId = mockNoteIds.get(0);
+        Long testToFolderId = mockFolderIds.get(0);
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
                 .updateType(NoteUpdateType.MOVE_NOTE)
@@ -397,8 +397,8 @@ public class NoteServiceTest {
                 .build();
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
-        when(mockFolderRepository.findById(testToFolderId)).thenReturn(Optional.of(savedFolders.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
+        when(mockFolderRepository.findById(testToFolderId)).thenReturn(Optional.of(mockFolders.get(0)));
         testService.updateNoteById(testId, testForm);
 
         // then
@@ -435,8 +435,8 @@ public class NoteServiceTest {
                 .updatedAt(now)
                 .notes(new ArrayList<>())
                 .build();
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
         assertFalse(testNote.getTags().contains(newTag));
 
         // when
@@ -465,9 +465,9 @@ public class NoteServiceTest {
                 .updateType(NoteUpdateType.ADD_TAG)
                 .tagName(existingTagName)
                 .build();
-        Tag existingTag = savedTags.get(1);
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
+        Tag existingTag = mockTags.get(1);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
         assertFalse(testNote.getTags().contains(existingTag));
 
         // when
@@ -498,9 +498,9 @@ public class NoteServiceTest {
                 .updateType(NoteUpdateType.REMOVE_TAG)
                 .tagName(oldTagName)
                 .build();
-        Tag oldTag = savedTags.get(0);
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
+        Tag oldTag = mockTags.get(0);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
         assertTrue(testNote.getTags().contains(oldTag));
 
         // when
@@ -538,7 +538,7 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_ConflictingNewName_ExceptionThrown() {
         // given
-        Long testId = savedNoteIds.get(0);
+        Long testId = mockNoteIds.get(0);
         String conflictingNewName = "Go";
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
@@ -549,22 +549,22 @@ public class NoteServiceTest {
                 " conflicts with an existing note under the same folder.";
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
-        when(mockNoteRepository.existsByNameWithSameFolder(conflictingNewName, savedFolders.get(1))).thenReturn(true);
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
+        when(mockNoteRepository.existsByNameWithSameFolder(conflictingNewName, mockFolders.get(1))).thenReturn(true);
         Exception exception = assertThrows(NoteNameConflictException.class,
                 () -> testService.updateNoteById(testId, testForm));
 
         // then
         verify(mockNoteRepository).findById(testId);
-        verify(mockNoteRepository).existsByNameWithSameFolder(conflictingNewName, savedFolders.get(1));
+        verify(mockNoteRepository).existsByNameWithSameFolder(conflictingNewName, mockFolders.get(1));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
     public void updateNoteById_SetIdenticalContent_Aborted() {
         // given
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
         String oldContent = testNote.getContent();
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
@@ -586,9 +586,9 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_InvalidMoveToFolder_ExceptionThrownOrAborted() {
         // given
-        Long testId = savedNoteIds.get(0);
+        Long testId = mockNoteIds.get(0);
         Long notExistingId = -1L;
-        Long testFolderId = savedFolderIds.get(1);
+        Long testFolderId = mockFolderIds.get(1);
         NoteUpdateForm testForm1 = NoteUpdateForm
                 .builder()
                 .updateType(NoteUpdateType.MOVE_NOTE)
@@ -603,11 +603,11 @@ public class NoteServiceTest {
         String expectedMessage2 = "Destination folder identical as current folder. Abort.";
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         Exception exception = assertThrows(FolderNotFoundException.class,
                 () -> testService.updateNoteById(testId, testForm1));
 
-        when(mockFolderRepository.findById(testFolderId)).thenReturn(Optional.of(savedFolders.get(1)));
+        when(mockFolderRepository.findById(testFolderId)).thenReturn(Optional.of(mockFolders.get(1)));
         testService.updateNoteById(testId, testForm2);
 
         // then
@@ -625,7 +625,7 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_AddOldTag_Aborted() {
         // given
-        Long testId = savedNoteIds.get(0);
+        Long testId = mockNoteIds.get(0);
         String oldTagName = "Google";
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
@@ -635,9 +635,9 @@ public class NoteServiceTest {
         String expectedMessage = "Note already contains tag to add. Abort.";
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         when(mockTagRepository.existsByName(oldTagName)).thenReturn(true);
-        when(mockTagRepository.getByName(oldTagName)).thenReturn(savedTags.get(0));
+        when(mockTagRepository.getByName(oldTagName)).thenReturn(mockTags.get(0));
         testService.updateNoteById(testId, testForm);
 
         // then
@@ -653,11 +653,11 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_InvalidRemoveTag_ExceptionThrown() {
         // given
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
         String notExistingTagName = "Not Exist";
         String testTagName = "Microsoft";
-        Tag testTag = savedTags.get(1);
+        Tag testTag = mockTags.get(1);
         NoteUpdateForm testForm1 = NoteUpdateForm
                 .builder()
                 .updateType(NoteUpdateType.REMOVE_TAG)
@@ -692,7 +692,7 @@ public class NoteServiceTest {
     @Test
     public void updateNoteById_UnsupportedNoteUpdateType_ExceptionThrown() {
         // given
-        Long testId = savedNoteIds.get(0);
+        Long testId = mockNoteIds.get(0);
         NoteUpdateForm testForm = NoteUpdateForm
                 .builder()
                 .updateType("Unsupported Operation")
@@ -700,7 +700,7 @@ public class NoteServiceTest {
         String expectedMessage = "Unsupported note update type.";
 
         // when
-        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(savedNotes.get(0)));
+        when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         Exception exception = assertThrows(IllegalArgumentException.class,
                 () -> testService.updateNoteById(testId, testForm));
 
@@ -712,9 +712,9 @@ public class NoteServiceTest {
     @Test
     public void deleteNoteById_Success() {
         // given
-        Long testId = savedNoteIds.get(0);
-        Note testNote = savedNotes.get(0);
-        Folder testFolder = savedFolders.get(1);
+        Long testId = mockNoteIds.get(0);
+        Note testNote = mockNotes.get(0);
+        Folder testFolder = mockFolders.get(1);
         assertTrue(testFolder.getNotes().contains(testNote));
 
         // when
