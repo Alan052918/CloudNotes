@@ -51,5 +51,5 @@ jobs:
     - name: Push the badge (if it changed)
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.CLOUDNOTES_TOKEN }}
         branch: ${{ github.ref }}
