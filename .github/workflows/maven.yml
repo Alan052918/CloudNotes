@@ -35,10 +35,12 @@ jobs:
         generate-summary: true
         generate-coverage-badge: true
         generate-branches-badge: true
-        generate-coverage-endpoint: true
-        generate-branches-endpoint: true
         coverage-badge-filename: jacocoNote.svg
         branches-badge-filename: branchesNote.svg
+        generate-coverage-endpoint: true
+        generate-branches-endpoint: true
+        coverage-endpoint-filename: jacocoNote.json
+        branches-endpoint-filename: branchesNote.json
         coverage-label: coverage (note)
         branches-label: branches (note)
 
