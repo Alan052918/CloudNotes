@@ -6,14 +6,13 @@
 
 A simple RESTful service to organize notes with folders and hashtags, built with Spring Boot.
 
-Key points for 9053 evaluation:
-
 - Spring Boot
   - Spring Web MVC: controller, service, repository architecture
   - Spring Data JPA: entity, JQL query
     - OneToMany, ManyToOne, ManyToMany relations
   - Spring HATEOAS: entity model, collection model, add links to API (make it RESTful)
   - Spring Validation: validate request forms
+  - Spring Testing, JUnit 5, Mockito: controller tests, service tests, repository tests
 - Maven
   - Maven multi-module project: dependency management, plugin management
   - Build and run Spring Boot Application
@@ -21,23 +20,7 @@ Key points for 9053 evaluation:
 - Docker Compose
 - API design
 - Exception handling
-
-Service oriented architecture:
-
-- [x] Transport: HTTP JSON
-- [x] Logging
-- [ ] Metrics
-- [ ] Tracing
-- [ ] Circuit breaking
-- [ ] Rate limiting
-- [ ] Audit logging
-- [ ] Service discovery
-- [ ] Service registry
-- [ ] Caching strategy
-- [ ] Deploy strategy
-- [ ] Contract testing
-- [ ] Security
-- [ ] Alerting
+- Unit/integration testing
 
 ## Table of Contents
 
@@ -45,15 +28,7 @@ Service oriented architecture:
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
   - [Model](#model)
-  - [Custom Exceptions](#custom-exceptions)
-    - [BadRequestException](#badrequestexception)
-    - [FolderNameConflictException](#foldernameconflictexception)
-    - [FolderNotFoundException](#foldernotfoundexception)
-    - [NoteNameConflictException](#notenameconflictexception)
-    - [NoteNotFoundException](#notenotfoundexception)
-    - [RootPreservationException](#rootpreservationexception)
-    - [TagNameConflictException](#tagnameconflictexception)
-    - [TagNotFoundException](#tagnotfoundexception)
+  - [Next Steps](#next-steps)
 
 ## Getting Started
 
@@ -84,10 +59,6 @@ cd note
 mvn spring-boot:run
 ```
 
-- [ ] TODO: containerize note application
-- [ ] TODO: add more submodules and service discovery to make this project fully microservice.
-- [ ] TODO: add unit tests and integration tests with Spring Testing
-
 Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/config/LoadDatabase.java) that populates the database with some folders, notes, and tags. My intention is to save you some time creating data, but please drop all tables before rerunning the application. An in-memory database like H2 that allows clean starts is preferable for testing purposes.
 
 ## Model
@@ -115,44 +86,27 @@ Warning: There is a [LoadDatabase.java](note/src/main/java/com/jundaai/note/conf
   - updatedAt: `ZonedDateTime`
   - notes: `List<Note>`
 
-## Custom Exceptions
+## Next Steps
 
-### BadRequestException
+Service oriented architecture:
 
-- Description: generic exception for handling bad requests
-- Response status code: `400 BAD REQUEST`
+- [x] Transport: HTTP JSON
+- [x] Logging
+- [ ] Audit logging
+- [ ] Security
+- [ ] Metrics
+- [ ] Tracing
+- [ ] Circuit breaking
+- [ ] Rate limiting
+- [ ] Service discovery
+- [ ] Service registry
+- [ ] Caching strategy
+- [ ] Deploy strategy
+- [ ] Contract testing
+- [ ] Alerting
 
-### FolderNameConflictException
+Miscellaneous:
 
-- Description: disallow two sub-folders under the same parent folder with the same name
-- Response status code: `409 CONFLICT`
-
-### FolderNotFoundException
-
-- Description: no folder by the given id found in database
-- Response status code: `404 NOT FOUND`
-
-### NoteNameConflictException
-
-- Description: disallow two notes under the same folder with the same name
-- Response status code: `409 CONFLICT`
-
-### NoteNotFoundException
-
-- Description: no note by the given id found in database
-- Response status code: `404 NOT FOUND`
-
-### RootPreservationException
-
-- Description: disallow deleting the root folder (named 'root', ancester of all folders and notes), or create a new folder named 'root'
-- Response status code: `400 BAD REQUEST`
-
-### TagNameConflictException
-
-- Description: disallow two tags with the same name
-- Response status code: `409 CONFLICT`
-
-### TagNotFoundException
-
-- Description: no tag by the given id found in database
-- Response status code: `404 NOT FOUND`
+- [x] Add unit tests and integration tests with Spring Testing
+- [ ] Containerize note application
+- [ ] Add more submodules and service discovery to make this project fully microservice.
