@@ -19,6 +19,7 @@ public class NoteRepositoryTest extends RepositoryTest {
     @Autowired
     private NoteRepository testRepository;
 
+    @Override
     @BeforeEach
     void setUp() {
         super.setUp();

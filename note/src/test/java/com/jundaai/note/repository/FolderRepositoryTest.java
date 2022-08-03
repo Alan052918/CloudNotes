@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +34,7 @@ public class FolderRepositoryTest extends RepositoryTest {
     public void findSubFoldersByParentId_Success() {
         // given
         Long testId = testRepository.findAll().get(0).getId();
-        List<String> expectedFolderNames = Arrays.asList(mockFolders.get(1).getName(), mockFolders.get(2).getName());
+        List<String> expectedFolderNames = List.of(mockFolders.get(1).getName(), mockFolders.get(2).getName());
 
         // when
         List<Folder> gotFolders = testRepository.findSubFoldersByParentId(testId).orElse(null);

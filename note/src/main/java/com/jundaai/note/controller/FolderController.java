@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @RestController
 @RequestMapping(path = "api/v1/folders")
 @Slf4j

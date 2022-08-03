@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class NoteServiceTest extends ServiceTest {
 
-    @Autowired
     private NoteService testService;
 
     @Override

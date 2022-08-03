@@ -16,9 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +26,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class FolderServiceTest extends ServiceTest {
 
-    @Autowired
     private FolderService testService;
 
     @Override
@@ -88,11 +85,11 @@ public class FolderServiceTest extends ServiceTest {
     public void getSubFoldersByParentId_Success() {
         // given
         Long testParentId = mockFolderIds.get(0);
-        List<Folder> expectedSubFolders = Arrays.asList(mockFolders.get(1), mockFolders.get(2));
+        List<Folder> expectedSubFolders = List.of(mockFolders.get(1), mockFolders.get(2));
 
         // when
         when(mockFolderRepository.findSubFoldersByParentId(testParentId))
-                .thenReturn(Optional.of(Arrays.asList(mockFolders.get(1), mockFolders.get(2))));
+                .thenReturn(Optional.of(List.of(mockFolders.get(1), mockFolders.get(2))));
         List<Folder> gotSubFolders = testService.getSubFoldersByParentId(testParentId);
 
         // then
