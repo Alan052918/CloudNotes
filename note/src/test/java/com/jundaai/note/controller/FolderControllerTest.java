@@ -43,8 +43,6 @@ public class FolderControllerTest extends ControllerTest {
     @MockBean
     private FolderModelAssembler mockFolderModelAssembler;
 
-    private static final String FOLDER_PATH = "/folders";
-
     @Override
     @BeforeEach
     void setUp() {
@@ -103,7 +101,7 @@ public class FolderControllerTest extends ControllerTest {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(testId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("root"));
 
         verify(mockFolderService).getFolderById(testId);
@@ -178,7 +176,7 @@ public class FolderControllerTest extends ControllerTest {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(newId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("New Folder"));
 
         verify(mockFolderService).createFolderByParentId(eq(testId), any(FolderCreationForm.class));
@@ -218,7 +216,7 @@ public class FolderControllerTest extends ControllerTest {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(8))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(testId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(0))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("New Name"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").value(now.toEpochSecond()));
 

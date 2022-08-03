@@ -37,6 +37,9 @@ public class ControllerTest {
     List<Long> mockTagIds;
 
     static final String BASE_PATH = "http://localhost/api/v1";
+    static final String FOLDER_PATH = "/folders";
+    static final String NOTE_PATH = "/notes";
+    static final String TAG_PATH = "/tags";
 
     @BeforeEach
     void setUp() {
