@@ -1,5 +1,5 @@
 target/
-!target/site/jacoco/
+!**/target/site/jacoco/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
