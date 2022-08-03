@@ -10,7 +10,6 @@ import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,8 +19,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @WebMvcTest
 @ExtendWith(MockitoExtension.class)
@@ -144,12 +141,6 @@ public class ControllerTest {
     @AfterEach
     void tearDown() {
 
-    }
-
-    @Test
-    public void smokeTest() {
-        assertNotNull(mapper);
-        assertNotNull(loggingEventListAppender);
     }
 
 }
