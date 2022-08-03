@@ -31,8 +31,12 @@ jobs:
       id: jacocoNote
       uses: cicirello/jacoco-badge-generator@v2
       with:
-        generate-branches-badge: true
         jacoco-csv-file: note/target/site/jacoco/jacoco.csv
+        generate-summary: true
+        generate-coverage-badge: true
+        generate-branches-badge: true
+        generate-coverage-endpoint: true
+        generate-branches-endpoint: true
         coverage-badge-filename: jacocoNote.svg
         branches-badge-filename: branchesNote.svg
         coverage-label: coverage (note)
