@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TagService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">note</a> &gt; <a href="index.source.html" class="el_package">com.jundaai.note.service</a> &gt; <span class="el_source">TagService.java</span></div><h1>TagService.java</h1><pre class="source lang-java linenums">package com.jundaai.note.service;
+
+import com.jundaai.note.exception.NoteNotFoundException;
+import com.jundaai.note.exception.TagNameConflictException;
+import com.jundaai.note.exception.TagNotFoundException;
+import com.jundaai.note.form.tag.TagCreationForm;
+import com.jundaai.note.form.tag.TagUpdateForm;
+import com.jundaai.note.model.Tag;
+import com.jundaai.note.repository.NoteRepository;
+import com.jundaai.note.repository.TagRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+<span class="fc" id="L21">@Slf4j</span>
+public class TagService {
+
+    private final NoteRepository noteRepository;
+    private final TagRepository tagRepository;
+
+    @Autowired
+<span class="fc" id="L28">    public TagService(NoteRepository noteRepository, TagRepository tagRepository) {</span>
+<span class="fc" id="L29">        this.noteRepository = noteRepository;</span>
+<span class="fc" id="L30">        this.tagRepository = tagRepository;</span>
+<span class="fc" id="L31">    }</span>
+
+    public List&lt;Tag&gt; getAllTags() {
+<span class="fc" id="L34">        log.info(&quot;Get all tags&quot;);</span>
+<span class="fc" id="L35">        return tagRepository.findAll();</span>
+    }
+
+    public List&lt;Tag&gt; getAllTagsByNoteId(Long noteId) {
+<span class="fc" id="L39">        log.info(&quot;Get all tags by note id: {}&quot;, noteId);</span>
+<span class="fc" id="L40">        return noteRepository</span>
+<span class="fc" id="L41">                .findAllTagsById(noteId)</span>
+<span class="fc" id="L42">                .orElseThrow(() -&gt; new NoteNotFoundException(noteId));</span>
+    }
+
+    public Tag getTagById(Long tagId) {
+<span class="fc" id="L46">        log.info(&quot;Get tag by id: {}&quot;, tagId);</span>
+<span class="fc" id="L47">        return tagRepository</span>
+<span class="fc" id="L48">                .findById(tagId)</span>
+<span class="fc" id="L49">                .orElseThrow(() -&gt; new TagNotFoundException(&quot;id: &quot; + tagId));</span>
+    }
+
+    @Transactional
+    public Tag createTag(TagCreationForm creationForm) {
+<span class="fc" id="L54">        log.info(&quot;Create new tag: {}&quot;, creationForm);</span>
+<span class="fc" id="L55">        String name = creationForm.getName();</span>
+
+<span class="pc bpc" id="L57" title="1 of 4 branches missed.">        if (name == null || name.isBlank()) {</span>
+<span class="fc" id="L58">            throw new IllegalArgumentException(&quot;Tag name cannot be null or blank.&quot;);</span>
+        }
+<span class="fc" id="L60">        boolean existsByName = tagRepository.existsByName(name);</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        if (existsByName) {</span>
+<span class="fc" id="L62">            throw new TagNameConflictException(name);</span>
+        }
+
+<span class="fc" id="L65">        ZonedDateTime now = ZonedDateTime.now();</span>
+        Tag tag = Tag
+<span class="fc" id="L67">                .builder()</span>
+<span class="fc" id="L68">                .name(name)</span>
+<span class="fc" id="L69">                .createdAt(now)</span>
+<span class="fc" id="L70">                .updatedAt(now)</span>
+<span class="fc" id="L71">                .notes(new ArrayList&lt;&gt;())</span>
+<span class="fc" id="L72">                .build();</span>
+<span class="fc" id="L73">        return tagRepository.save(tag);</span>
+    }
+
+
+    @Transactional
+    public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {
+<span class="fc" id="L79">        log.info(&quot;Update tag by id: {}, form: {}&quot;, tagId, updateForm);</span>
+<span class="fc" id="L80">        Tag tag = tagRepository</span>
+<span class="fc" id="L81">                .findById(tagId)</span>
+<span class="fc" id="L82">                .orElseThrow(() -&gt; new TagNotFoundException(&quot;id: &quot; + tagId));</span>
+<span class="fc" id="L83">        String newName = updateForm.getNewName();</span>
+
+<span class="fc" id="L85">        boolean nameConflicted = tagRepository.existsByName(newName);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (nameConflicted) {</span>
+<span class="fc" id="L87">            throw new TagNameConflictException(newName);</span>
+        }
+
+<span class="fc" id="L90">        tag.setName(newName);</span>
+<span class="fc" id="L91">        tag.setUpdatedAt(ZonedDateTime.now());</span>
+<span class="fc" id="L92">        return tagRepository.save(tag);</span>
+    }
+
+    @Transactional
+    public void deleteTagById(Long tagId) {
+<span class="fc" id="L97">        log.info(&quot;Delete tag by id: {}&quot;, tagId);</span>
+<span class="fc" id="L98">        Tag tag = tagRepository</span>
+<span class="fc" id="L99">                .findById(tagId)</span>
+<span class="fc" id="L100">                .orElseThrow(() -&gt; new TagNotFoundException(&quot;id: &quot; + tagId));</span>
+
+<span class="fc" id="L102">        tag.getNotes().forEach(note -&gt; {</span>
+<span class="fc" id="L103">            List&lt;Tag&gt; noteTags = note.getTags();</span>
+<span class="fc" id="L104">            noteTags.remove(tag);</span>
+<span class="fc" id="L105">            note.setTags(noteTags);</span>
+<span class="fc" id="L106">            noteRepository.save(note);</span>
+<span class="fc" id="L107">        });</span>
+
+<span class="fc" id="L109">        tagRepository.deleteById(tagId);</span>
+<span class="fc" id="L110">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

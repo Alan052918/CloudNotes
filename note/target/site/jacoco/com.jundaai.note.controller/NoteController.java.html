@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NoteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">note</a> &gt; <a href="index.source.html" class="el_package">com.jundaai.note.controller</a> &gt; <span class="el_source">NoteController.java</span></div><h1>NoteController.java</h1><pre class="source lang-java linenums">package com.jundaai.note.controller;
+
+import com.jundaai.note.form.note.NoteCreationForm;
+import com.jundaai.note.form.note.NoteUpdateForm;
+import com.jundaai.note.model.Note;
+import com.jundaai.note.model.assembler.NoteModelAssembler;
+import com.jundaai.note.service.NoteService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
+import java.util.List;
+
+@Validated
+@RestController
+@RequestMapping(path = &quot;/api/v1&quot;)
+<span class="fc" id="L25">@Slf4j</span>
+public class NoteController {
+
+    private final NoteService noteService;
+    private final NoteModelAssembler noteModelAssembler;
+
+    @Autowired
+<span class="fc" id="L32">    public NoteController(NoteService noteService, NoteModelAssembler noteModelAssembler) {</span>
+<span class="fc" id="L33">        this.noteService = noteService;</span>
+<span class="fc" id="L34">        this.noteModelAssembler = noteModelAssembler;</span>
+<span class="fc" id="L35">    }</span>
+
+    @GetMapping(path = &quot;notes&quot;)
+    public ResponseEntity&lt;CollectionModel&lt;EntityModel&lt;Note&gt;&gt;&gt; getAllNotes() {
+<span class="fc" id="L39">        log.info(&quot;Request to get all notes&quot;);</span>
+<span class="fc" id="L40">        final List&lt;Note&gt; notes = noteService.getAllNotes();</span>
+<span class="fc" id="L41">        return ResponseEntity.ok(noteModelAssembler.toCollectionModel(notes));</span>
+    }
+
+    @GetMapping(path = &quot;folders/{folderId}/notes&quot;)
+    public ResponseEntity&lt;CollectionModel&lt;EntityModel&lt;Note&gt;&gt;&gt; getAllNotesByFolderId(
+            @PathVariable(name = &quot;folderId&quot;) Long folderId
+    ) {
+<span class="fc" id="L48">        log.info(&quot;Request to get all notes by folder id: {}&quot;, folderId);</span>
+<span class="fc" id="L49">        final List&lt;Note&gt; notes = noteService.getAllNotesByFolderId(folderId);</span>
+<span class="fc" id="L50">        return ResponseEntity.ok(noteModelAssembler.toCollectionModel(notes));</span>
+    }
+
+    @GetMapping(path = &quot;tags/{tagId}/notes&quot;)
+    public ResponseEntity&lt;CollectionModel&lt;EntityModel&lt;Note&gt;&gt;&gt; getAllNotesByTagId(
+            @PathVariable(name = &quot;tagId&quot;) Long tagId
+    ) {
+<span class="fc" id="L57">        log.info(&quot;Request to get all notes by tag id: {}&quot;, tagId);</span>
+<span class="fc" id="L58">        final List&lt;Note&gt; notes = noteService.getAllNotesByTagId(tagId);</span>
+<span class="fc" id="L59">        return ResponseEntity.ok(noteModelAssembler.toCollectionModel(notes));</span>
+    }
+
+    @GetMapping(path = &quot;notes/{noteId}&quot;)
+    public ResponseEntity&lt;EntityModel&lt;Note&gt;&gt; getNoteById(@PathVariable(name = &quot;noteId&quot;) Long noteId) {
+<span class="fc" id="L64">        log.info(&quot;Request to get note by note id: {}&quot;, noteId);</span>
+<span class="fc" id="L65">        final Note note = noteService.getNoteById(noteId);</span>
+<span class="fc" id="L66">        return ResponseEntity.ok(noteModelAssembler.toModel(note));</span>
+    }
+
+    @PostMapping(path = &quot;folders/{folderId}/notes&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity&lt;EntityModel&lt;Note&gt;&gt; createNoteByFolderId(@PathVariable(name = &quot;folderId&quot;) Long folderId,
+                                                                  @Valid @RequestBody NoteCreationForm creationForm) {
+<span class="fc" id="L73">        log.info(&quot;Request to create new note: {}, folder id: {}&quot;, creationForm, folderId);</span>
+<span class="fc" id="L74">        final Note note = noteService.createNoteByFolderId(folderId, creationForm);</span>
+<span class="fc" id="L75">        final URI uri = MvcUriComponentsBuilder</span>
+<span class="fc" id="L76">                .fromController(NoteController.class)</span>
+<span class="fc" id="L77">                .path(&quot;folders/{folderId}/notes&quot;)</span>
+<span class="fc" id="L78">                .buildAndExpand(note.getId())</span>
+<span class="fc" id="L79">                .toUri();</span>
+<span class="fc" id="L80">        return ResponseEntity.created(uri).body(noteModelAssembler.toModel(note));</span>
+    }
+
+    @PatchMapping(path = &quot;notes/{noteId}&quot;)
+    public ResponseEntity&lt;EntityModel&lt;Note&gt;&gt; updateNoteById(@PathVariable(name = &quot;noteId&quot;) Long noteId,
+                                                            @Valid @RequestBody NoteUpdateForm updateForm) {
+<span class="fc" id="L86">        log.info(&quot;Request to update note by id: {}, form: {}&quot;, noteId, updateForm);</span>
+<span class="fc" id="L87">        final Note note = noteService.updateNoteById(noteId, updateForm);</span>
+<span class="fc" id="L88">        return ResponseEntity.ok(noteModelAssembler.toModel(note));</span>
+    }
+
+    @DeleteMapping(&quot;notes/{noteId}&quot;)
+    public ResponseEntity&lt;?&gt; deleteNoteById(@PathVariable(name = &quot;noteId&quot;) Long noteId) {
+<span class="fc" id="L93">        log.info(&quot;Request to delete note by id: {}&quot;, noteId);</span>
+<span class="fc" id="L94">        noteService.deleteNoteById(noteId);</span>
+<span class="fc" id="L95">        return ResponseEntity.noContent().build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

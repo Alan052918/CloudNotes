@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TagModelAssembler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">note</a> &gt; <a href="index.source.html" class="el_package">com.jundaai.note.model.assembler</a> &gt; <span class="el_source">TagModelAssembler.java</span></div><h1>TagModelAssembler.java</h1><pre class="source lang-java linenums">package com.jundaai.note.model.assembler;
+
+import com.jundaai.note.controller.TagController;
+import com.jundaai.note.model.Tag;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
+import org.springframework.stereotype.Component;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+@Component
+<span class="fc" id="L14">public class TagModelAssembler implements RepresentationModelAssembler&lt;Tag, EntityModel&lt;Tag&gt;&gt; {</span>
+
+    @Override
+    public EntityModel&lt;Tag&gt; toModel(Tag entity) {
+<span class="fc" id="L18">        return EntityModel.of(</span>
+                entity,
+<span class="fc" id="L20">                linkTo(methodOn(TagController.class).getTagById(entity.getId())).withSelfRel(),</span>
+<span class="fc" id="L21">                linkTo(methodOn(TagController.class).getAllTags()).withRel(&quot;all tags&quot;)</span>
+        );
+    }
+
+    @Override
+    public CollectionModel&lt;EntityModel&lt;Tag&gt;&gt; toCollectionModel(Iterable&lt;? extends Tag&gt; entities) {
+<span class="fc" id="L27">        return RepresentationModelAssembler.super.toCollectionModel(entities);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,16 @@
+com/jundaai/note/service/ServiceTest.class
+com/jundaai/note/service/TagServiceTest.class
+com/jundaai/note/repository/RepositoryTest.class
+com/jundaai/note/repository/TagRepositoryTest.class
+com/jundaai/note/service/NoteServiceTest.class
+com/jundaai/note/controller/FolderControllerTest.class
+com/jundaai/note/controller/NoteControllerTest.class
+com/jundaai/note/service/FolderServiceTest.class
+com/jundaai/note/controller/TagControllerTest.class
+com/jundaai/note/SmokeTest.class
+com/jundaai/note/repository/FolderRepositoryTest.class
+com/jundaai/note/controller/ControllerTest.class
+com/jundaai/note/model/assembler/NoteModelAssemblerTest.class
+com/jundaai/note/model/assembler/TagModelAssemblerTest.class
+com/jundaai/note/repository/NoteRepositoryTest.class
+com/jundaai/note/model/assembler/FolderModelAssemblerTest.class
