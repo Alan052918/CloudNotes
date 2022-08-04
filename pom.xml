@@ -58,6 +58,9 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.maven.plugin.version}</version>
+                    <configuration>
+                        <mainClass>com.jundaai.note.NoteApplication</mainClass>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
