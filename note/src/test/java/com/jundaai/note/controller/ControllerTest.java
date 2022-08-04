@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@WebMvcTest
 @ExtendWith(MockitoExtension.class)
 public class ControllerTest {
 
