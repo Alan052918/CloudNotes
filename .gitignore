@@ -1,3 +1,6 @@
+**/target/
+!**/target/site/jacoco/
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws
