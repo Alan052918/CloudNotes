@@ -2,6 +2,7 @@ package com.jundaai.note.model.assembler;
 
 import com.jundaai.note.controller.FolderController;
 import com.jundaai.note.model.Folder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,23 +27,49 @@ public class FolderModelAssemblerTest {
     @Autowired
     private FolderModelAssembler testModelAssembler;
 
-    @Test
-    public void toModel_Success() {
-        // given
+    List<Folder> mockFolders;
+
+    @BeforeEach
+    void setUp() {
+        mockFolders = new ArrayList<>();
+        loadFolders();
+    }
+
+    void loadFolders() {
         ZonedDateTime now = ZonedDateTime.now();
-        Folder folder = Folder
+        Folder parentFolder = Folder
                 .builder()
                 .id(1L)
-                .name("Folder")
+                .name("Parent Folder")
                 .createdAt(now)
                 .updatedAt(now)
                 .parentFolder(null)
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
+        mockFolders.add(parentFolder);
+        Folder folder = Folder
+                .builder()
+                .id(2L)
+                .name("Folder")
+                .createdAt(now)
+                .updatedAt(now)
+                .parentFolder(parentFolder)
+                .subFolders(new ArrayList<>())
+                .notes(new ArrayList<>())
+                .build();
+        mockFolders.add(folder);
+    }
+
+    @Test
+    public void toModel_Success() {
+        // given
+        Folder folder = mockFolders.get(1);
         EntityModel<Folder> expectedModel = EntityModel.of(
                 folder,
                 linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel(),
+                linkTo(methodOn(FolderController.class).getFolderById(folder.getParentFolder().getId()))
+                        .withRel("parent"),
                 linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders")
         );
 
@@ -56,39 +83,25 @@ public class FolderModelAssemblerTest {
     @Test
     public void toCollectionModel_Success() {
         // given
-        ZonedDateTime now = ZonedDateTime.now();
-        Folder folder1 = Folder
-                .builder()
-                .id(1L)
-                .name("Folder")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(null)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        Folder folder2 = Folder
-                .builder()
-                .id(2L)
-                .name("Another folder")
-                .createdAt(now)
-                .updatedAt(now)
-                .parentFolder(null)
-                .subFolders(new ArrayList<>())
-                .notes(new ArrayList<>())
-                .build();
-        List<Folder> folders = List.of(folder1, folder2);
-        CollectionModel<EntityModel<Folder>> expectedModel = folders
+        CollectionModel<EntityModel<Folder>> expectedModel = mockFolders
                 .stream()
-                .map(folder -> EntityModel.of(
-                        folder,
-                        linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel(),
-                        linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders")
-                ))
+                .map(folder -> {
+                    EntityModel<Folder> entityModel = EntityModel.of(
+                            folder,
+                            linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()
+                    );
+                    if (folder.getParentFolder() != null) {
+                        entityModel.add(
+                                linkTo(methodOn(FolderController.class).getFolderById(folder.getParentFolder().getId()))
+                                        .withRel("parent"));
+                    }
+                    entityModel.add(linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders"));
+                    return entityModel;
+                })
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when
-        CollectionModel<EntityModel<Folder>> gotModel = testModelAssembler.toCollectionModel(folders);
+        CollectionModel<EntityModel<Folder>> gotModel = testModelAssembler.toCollectionModel(mockFolders);
 
         // then
         assertEquals(expectedModel, gotModel);
