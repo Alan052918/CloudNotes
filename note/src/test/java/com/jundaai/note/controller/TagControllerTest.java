@@ -56,8 +56,7 @@ public class TagControllerTest extends ControllerTest {
                 .stream()
                 .map(tag -> EntityModel.of(
                         tag,
-                        linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -83,8 +82,7 @@ public class TagControllerTest extends ControllerTest {
                 .stream()
                 .map(tag -> EntityModel.of(
                         tag,
-                        linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -110,8 +108,7 @@ public class TagControllerTest extends ControllerTest {
         Tag testTag = mockTags.get(0);
         EntityModel<Tag> entityModel = EntityModel.of(
                 testTag,
-                linkTo(methodOn(TagController.class).getTagById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(TagController.class).getTagById(testId)).withSelfRel());
 
         // when, then
         when(mockTagService.getTagById(testId)).thenReturn(testTag);
@@ -143,8 +140,7 @@ public class TagControllerTest extends ControllerTest {
                 .build();
         EntityModel<Tag> entityModel = EntityModel.of(
                 newTag,
-                linkTo(methodOn(TagController.class).getTagById(newId)).withSelfRel()
-        );
+                linkTo(methodOn(TagController.class).getTagById(newId)).withSelfRel());
         String requestBody = """
                 {
                     "name": "New Tag"
@@ -182,8 +178,7 @@ public class TagControllerTest extends ControllerTest {
         testTag.setUpdatedAt(now);
         EntityModel<Tag> entityModel = EntityModel.of(
                 testTag,
-                linkTo(methodOn(TagController.class).getTagById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(TagController.class).getTagById(testId)).withSelfRel());
         String requestBody = """
                 {
                     "newName": "New Name"

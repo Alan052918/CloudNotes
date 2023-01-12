@@ -17,9 +17,7 @@ import java.util.List;
 public class Folder {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
@@ -32,32 +30,19 @@ public class Folder {
     private ZonedDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(
-            name = "parent_id",
-            referencedColumnName = "id"
-    )
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
     @ToString.Exclude
-    @JsonIgnoreProperties(value = {"parentFolder", "subFolders", "notes"})
+    @JsonIgnoreProperties(value = { "parentFolder", "subFolders", "notes" })
     private Folder parentFolder;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "parentFolder",
-            orphanRemoval = true
-    )
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "parentFolder", orphanRemoval = true)
     @ToString.Exclude
-    @JsonIgnoreProperties(value = {"parentFolder", "subFolders", "notes"})
+    @JsonIgnoreProperties(value = { "parentFolder", "subFolders", "notes" })
     private List<Folder> subFolders;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
-            mappedBy = "folder",
-            orphanRemoval = true
-    )
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "folder", orphanRemoval = true)
     @ToString.Exclude
-    @JsonIgnoreProperties(value = {"content", "folder"})
+    @JsonIgnoreProperties(value = { "content", "folder" })
     private List<Note> notes;
 
 }

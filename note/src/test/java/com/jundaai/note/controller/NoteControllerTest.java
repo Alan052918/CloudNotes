@@ -56,8 +56,7 @@ public class NoteControllerTest extends ControllerTest {
                 .stream()
                 .map(note -> EntityModel.of(
                         note,
-                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -83,8 +82,7 @@ public class NoteControllerTest extends ControllerTest {
                 .stream()
                 .map(note -> EntityModel.of(
                         note,
-                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -111,8 +109,7 @@ public class NoteControllerTest extends ControllerTest {
                 .stream()
                 .map(note -> EntityModel.of(
                         note,
-                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -138,8 +135,7 @@ public class NoteControllerTest extends ControllerTest {
         Note testNote = mockNotes.get(0);
         EntityModel<Note> entityModel = EntityModel.of(
                 testNote,
-                linkTo(methodOn(NoteController.class).getNoteById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(NoteController.class).getNoteById(testId)).withSelfRel());
 
         // when, then
         when(mockNoteService.getNoteById(testId)).thenReturn(testNote);
@@ -174,8 +170,7 @@ public class NoteControllerTest extends ControllerTest {
                 .build();
         EntityModel<Note> entityModel = EntityModel.of(
                 newNote,
-                linkTo(methodOn(NoteController.class).getNoteById(newId)).withSelfRel()
-        );
+                linkTo(methodOn(NoteController.class).getNoteById(newId)).withSelfRel());
         String requestBody = """
                 {
                     "name": "New Note",
@@ -214,8 +209,7 @@ public class NoteControllerTest extends ControllerTest {
         testNote.setUpdatedAt(now);
         EntityModel<Note> entityModel = EntityModel.of(
                 testNote,
-                linkTo(methodOn(NoteController.class).getNoteById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(NoteController.class).getNoteById(testId)).withSelfRel());
         String requestBody = """
                 {
                     "updateType": "RENAME_NOTE",

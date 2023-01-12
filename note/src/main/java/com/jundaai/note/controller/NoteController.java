@@ -6,7 +6,6 @@ import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
 import com.jundaai.note.service.NoteService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,6 @@ public class NoteController {
     private final NoteService noteService;
     private final NoteModelAssembler noteModelAssembler;
 
-    @Autowired
     public NoteController(NoteService noteService, NoteModelAssembler noteModelAssembler) {
         this.noteService = noteService;
         this.noteModelAssembler = noteModelAssembler;
@@ -43,8 +41,7 @@ public class NoteController {
 
     @GetMapping(path = "folders/{folderId}/notes")
     public ResponseEntity<CollectionModel<EntityModel<Note>>> getAllNotesByFolderId(
-            @PathVariable(name = "folderId") Long folderId
-    ) {
+            @PathVariable(name = "folderId") Long folderId) {
         log.info("Request to get all notes by folder id: {}", folderId);
         final List<Note> notes = noteService.getAllNotesByFolderId(folderId);
         return ResponseEntity.ok(noteModelAssembler.toCollectionModel(notes));
@@ -52,8 +49,7 @@ public class NoteController {
 
     @GetMapping(path = "tags/{tagId}/notes")
     public ResponseEntity<CollectionModel<EntityModel<Note>>> getAllNotesByTagId(
-            @PathVariable(name = "tagId") Long tagId
-    ) {
+            @PathVariable(name = "tagId") Long tagId) {
         log.info("Request to get all notes by tag id: {}", tagId);
         final List<Note> notes = noteService.getAllNotesByTagId(tagId);
         return ResponseEntity.ok(noteModelAssembler.toCollectionModel(notes));
@@ -69,7 +65,7 @@ public class NoteController {
     @PostMapping(path = "folders/{folderId}/notes")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<EntityModel<Note>> createNoteByFolderId(@PathVariable(name = "folderId") Long folderId,
-                                                                  @Valid @RequestBody NoteCreationForm creationForm) {
+            @Valid @RequestBody NoteCreationForm creationForm) {
         log.info("Request to create new note: {}, folder id: {}", creationForm, folderId);
         final Note note = noteService.createNoteByFolderId(folderId, creationForm);
         final URI uri = MvcUriComponentsBuilder
@@ -82,7 +78,7 @@ public class NoteController {
 
     @PatchMapping(path = "notes/{noteId}")
     public ResponseEntity<EntityModel<Note>> updateNoteById(@PathVariable(name = "noteId") Long noteId,
-                                                            @Valid @RequestBody NoteUpdateForm updateForm) {
+            @Valid @RequestBody NoteUpdateForm updateForm) {
         log.info("Request to update note by id: {}, form: {}", noteId, updateForm);
         final Note note = noteService.updateNoteById(noteId, updateForm);
         return ResponseEntity.ok(noteModelAssembler.toModel(note));

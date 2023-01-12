@@ -10,11 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name"})
-        }
-)
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,14 +30,7 @@ public class Tag {
     @NotNull
     private ZonedDateTime updatedAt;
 
-    @ManyToMany(
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            },
-            fetch = FetchType.EAGER,
-            mappedBy = "tags"
-    )
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, mappedBy = "tags")
     @JsonIgnore
     private List<Note> notes;
 

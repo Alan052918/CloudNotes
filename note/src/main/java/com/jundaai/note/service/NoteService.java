@@ -11,7 +11,6 @@ import com.jundaai.note.repository.FolderRepository;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -28,7 +27,6 @@ public class NoteService {
     private final NoteRepository noteRepository;
     private final TagRepository tagRepository;
 
-    @Autowired
     public NoteService(FolderRepository folderRepository, NoteRepository noteRepository, TagRepository tagRepository) {
         this.folderRepository = folderRepository;
         this.noteRepository = noteRepository;

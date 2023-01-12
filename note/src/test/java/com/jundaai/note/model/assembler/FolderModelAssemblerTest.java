@@ -70,8 +70,7 @@ public class FolderModelAssemblerTest {
                 linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel(),
                 linkTo(methodOn(FolderController.class).getFolderById(folder.getParentFolder().getId()))
                         .withRel("parent"),
-                linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders")
-        );
+                linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders"));
 
         // when
         EntityModel<Folder> gotModel = testModelAssembler.toModel(folder);
@@ -88,8 +87,7 @@ public class FolderModelAssemblerTest {
                 .map(folder -> {
                     EntityModel<Folder> entityModel = EntityModel.of(
                             folder,
-                            linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()
-                    );
+                            linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel());
                     if (folder.getParentFolder() != null) {
                         entityModel.add(
                                 linkTo(methodOn(FolderController.class).getFolderById(folder.getParentFolder().getId()))

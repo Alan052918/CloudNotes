@@ -178,7 +178,6 @@ public class FolderServiceTest extends ServiceTest {
         String expectedMessage3 = "Folder name: " + conflictingFolderName +
                 " conflicts with an existing folder under the same parent.";
 
-
         // when
         when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Exception exception1 = assertThrows(RootPreservationException.class,

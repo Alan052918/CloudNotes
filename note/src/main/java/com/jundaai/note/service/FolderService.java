@@ -10,7 +10,6 @@ import com.jundaai.note.form.folder.FolderOperationType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.repository.FolderRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -25,7 +24,6 @@ public class FolderService {
 
     private final FolderRepository folderRepository;
 
-    @Autowired
     public FolderService(FolderRepository folderRepository) {
         this.folderRepository = folderRepository;
     }

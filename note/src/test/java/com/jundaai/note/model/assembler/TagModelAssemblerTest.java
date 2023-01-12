@@ -1,6 +1,5 @@
 package com.jundaai.note.model.assembler;
 
-
 import com.jundaai.note.controller.TagController;
 import com.jundaai.note.model.Tag;
 import org.junit.jupiter.api.Test;
@@ -42,8 +41,7 @@ public class TagModelAssemblerTest {
         EntityModel<Tag> expectedModel = EntityModel.of(
                 tag,
                 linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel(),
-                linkTo(methodOn(TagController.class).getAllTags()).withRel("all tags")
-        );
+                linkTo(methodOn(TagController.class).getAllTags()).withRel("all tags"));
 
         // when
         EntityModel<Tag> gotModel = testModelAssembler.toModel(tag);
@@ -78,8 +76,7 @@ public class TagModelAssemblerTest {
                 .map(tag -> EntityModel.of(
                         tag,
                         linkTo(methodOn(TagController.class).getTagById(tag.getId())).withSelfRel(),
-                        linkTo(methodOn(TagController.class).getAllTags()).withRel("all tags")
-                ))
+                        linkTo(methodOn(TagController.class).getAllTags()).withRel("all tags")))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when

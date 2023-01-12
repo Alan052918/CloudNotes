@@ -9,7 +9,6 @@ import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -24,7 +23,6 @@ public class TagService {
     private final NoteRepository noteRepository;
     private final TagRepository tagRepository;
 
-    @Autowired
     public TagService(NoteRepository noteRepository, TagRepository tagRepository) {
         this.noteRepository = noteRepository;
         this.tagRepository = tagRepository;
@@ -72,7 +70,6 @@ public class TagService {
                 .build();
         return tagRepository.save(tag);
     }
-
 
     @Transactional
     public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {

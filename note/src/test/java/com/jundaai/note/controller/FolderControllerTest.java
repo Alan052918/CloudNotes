@@ -57,8 +57,7 @@ public class FolderControllerTest extends ControllerTest {
                 .stream()
                 .map(folder -> EntityModel.of(
                         folder,
-                        linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -87,8 +86,7 @@ public class FolderControllerTest extends ControllerTest {
         Folder testFolder = mockFolders.get(0);
         EntityModel<Folder> entityModel = EntityModel.of(
                 testFolder,
-                linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel());
 
         // when, then
         when(mockFolderService.getFolderById(testId)).thenReturn(testFolder);
@@ -114,8 +112,7 @@ public class FolderControllerTest extends ControllerTest {
                 .stream()
                 .map(folder -> EntityModel.of(
                         folder,
-                        linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()
-                ))
+                        linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
@@ -154,8 +151,7 @@ public class FolderControllerTest extends ControllerTest {
                 .build();
         EntityModel<Folder> entityModel = EntityModel.of(
                 newFolder,
-                linkTo(methodOn(FolderController.class).getFolderById(newId)).withSelfRel()
-        );
+                linkTo(methodOn(FolderController.class).getFolderById(newId)).withSelfRel());
         String requestBody = """
                 {
                     "name": "New Folder"
@@ -193,8 +189,7 @@ public class FolderControllerTest extends ControllerTest {
         testFolder.setUpdatedAt(now);
         EntityModel<Folder> entityModel = EntityModel.of(
                 testFolder,
-                linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel()
-        );
+                linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel());
         String requestBody = """
                 {
                     "updateType": "RENAME_FOLDER",

@@ -21,8 +21,8 @@ public class LoadDatabase {
 
     @Bean
     CommandLineRunner initDatabase(FolderRepository folderRepository,
-                                   NoteRepository noteRepository,
-                                   TagRepository tagRepository) {
+            NoteRepository noteRepository,
+            TagRepository tagRepository) {
         log.info("Loading Database...");
         return args -> {
             ZonedDateTime now = ZonedDateTime.now();

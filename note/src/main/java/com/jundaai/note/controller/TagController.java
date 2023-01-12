@@ -6,7 +6,6 @@ import com.jundaai.note.model.Tag;
 import com.jundaai.note.model.assembler.TagModelAssembler;
 import com.jundaai.note.service.TagService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ public class TagController {
     private final TagService tagService;
     private final TagModelAssembler tagModelAssembler;
 
-    @Autowired
     public TagController(TagService tagService, TagModelAssembler tagModelAssembler) {
         this.tagService = tagService;
         this.tagModelAssembler = tagModelAssembler;
@@ -42,8 +40,7 @@ public class TagController {
 
     @GetMapping(path = "notes/{noteId}/tags")
     public ResponseEntity<CollectionModel<EntityModel<Tag>>> getAllTagsByNoteId(
-            @PathVariable(name = "noteId") Long noteId
-    ) {
+            @PathVariable(name = "noteId") Long noteId) {
         log.info("Request to get all tags by note id: {}", noteId);
         final List<Tag> tags = tagService.getAllTagsByNoteId(noteId);
         return ResponseEntity.ok(tagModelAssembler.toCollectionModel(tags));
@@ -70,7 +67,7 @@ public class TagController {
 
     @PatchMapping(path = "tags/{tagId}")
     public ResponseEntity<EntityModel<Tag>> updateTag(@PathVariable(name = "tagId") Long tagId,
-                                                      @Valid @RequestBody TagUpdateForm updateForm) {
+            @Valid @RequestBody TagUpdateForm updateForm) {
         log.info("Request to update tag by id: {}, form: {}", tagId, updateForm);
         final Tag tag = tagService.updateTagById(tagId, updateForm);
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));

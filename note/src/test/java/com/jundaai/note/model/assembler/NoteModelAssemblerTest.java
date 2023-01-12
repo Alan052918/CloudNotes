@@ -56,8 +56,7 @@ public class NoteModelAssemblerTest {
                 note,
                 linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel(),
                 linkTo(methodOn(FolderController.class).getFolderById(note.getFolder().getId())).withRel("folder"),
-                linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes")
-        );
+                linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes"));
 
         // when
         EntityModel<Note> gotModel = testModelAssembler.toModel(note);
@@ -94,9 +93,9 @@ public class NoteModelAssemblerTest {
                 .map(note -> EntityModel.of(
                         note,
                         linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel(),
-                        linkTo(methodOn(FolderController.class).getFolderById(note.getFolder().getId())).withRel("folder"),
-                        linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes")
-                ))
+                        linkTo(methodOn(FolderController.class).getFolderById(note.getFolder().getId()))
+                                .withRel("folder"),
+                        linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes")))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when

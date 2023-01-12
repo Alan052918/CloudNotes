@@ -18,9 +18,7 @@ import java.util.List;
 public class Note {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
@@ -36,33 +34,15 @@ public class Note {
     private ZonedDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(
-            name = "folder_id",
-            referencedColumnName = "id"
-    )
-    @JsonIgnoreProperties(
-            value = {"parentFolder", "subFolders", "notes"}
-    )
+    @JoinColumn(name = "folder_id", referencedColumnName = "id")
+    @JsonIgnoreProperties(value = { "parentFolder", "subFolders", "notes" })
     private Folder folder;
 
-    @ManyToMany(
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            },
-            fetch = FetchType.EAGER
-    )
-    @JoinTable(
-            name = "note_tag",
-            joinColumns = @JoinColumn(
-                    name = "note_id",
-                    referencedColumnName = "id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "tag_id",
-                    referencedColumnName = "id"
-            )
-    )
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    }, fetch = FetchType.EAGER)
+    @JoinTable(name = "note_tag", joinColumns = @JoinColumn(name = "note_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     @JsonIgnore
     @ToString.Exclude
     private List<Tag> tags;

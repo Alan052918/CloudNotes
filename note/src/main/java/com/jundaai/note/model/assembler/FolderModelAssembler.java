@@ -17,13 +17,11 @@ public class FolderModelAssembler implements RepresentationModelAssembler<Folder
     public EntityModel<Folder> toModel(Folder entity) {
         EntityModel<Folder> entityModel = EntityModel.of(
                 entity,
-                linkTo(methodOn(FolderController.class).getFolderById(entity.getId())).withSelfRel()
-        );
+                linkTo(methodOn(FolderController.class).getFolderById(entity.getId())).withSelfRel());
         if (entity.getParentFolder() != null) {
             entityModel.add(
                     linkTo(methodOn(FolderController.class).getFolderById(entity.getParentFolder().getId()))
-                            .withRel("parent")
-            );
+                            .withRel("parent"));
         }
         entityModel.add(linkTo(methodOn(FolderController.class).getAllFolders()).withRel("all folders"));
         return entityModel;
