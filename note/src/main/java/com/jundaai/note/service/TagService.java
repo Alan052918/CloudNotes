@@ -1,5 +1,11 @@
 package com.jundaai.note.service;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
@@ -11,10 +17,6 @@ import com.jundaai.note.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -35,22 +37,20 @@ public class TagService {
 
     public List<Tag> getAllTagsByNoteId(Long noteId) {
         log.info("Get all tags by note id: {}", noteId);
-        return noteRepository
-                .findAllTagsById(noteId)
+        return noteRepository.findAllTagsById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));
     }
 
     public Tag getTagById(Long tagId) {
         log.info("Get tag by id: {}", tagId);
-        return tagRepository
-                .findById(tagId)
+        return tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
     }
 
     @Transactional
     public Tag createTag(TagCreationForm creationForm) {
         log.info("Create new tag: {}", creationForm);
-        String name = creationForm.getName();
+        String name = creationForm.name();
 
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Tag name cannot be null or blank.");
@@ -61,8 +61,7 @@ public class TagService {
         }
 
         ZonedDateTime now = ZonedDateTime.now();
-        Tag tag = Tag
-                .builder()
+        Tag tag = Tag.builder()
                 .name(name)
                 .createdAt(now)
                 .updatedAt(now)
@@ -74,10 +73,9 @@ public class TagService {
     @Transactional
     public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {
         log.info("Update tag by id: {}, form: {}", tagId, updateForm);
-        Tag tag = tagRepository
-                .findById(tagId)
+        Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
-        String newName = updateForm.getNewName();
+        String newName = updateForm.newName();
 
         boolean nameConflicted = tagRepository.existsByName(newName);
         if (nameConflicted) {
@@ -92,8 +90,7 @@ public class TagService {
     @Transactional
     public void deleteTagById(Long tagId) {
         log.info("Delete tag by id: {}", tagId);
-        Tag tag = tagRepository
-                .findById(tagId)
+        Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
 
         tag.getNotes().forEach(note -> {
@@ -105,5 +102,4 @@ public class TagService {
 
         tagRepository.deleteById(tagId);
     }
-
 }

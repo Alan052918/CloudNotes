@@ -1,10 +1,11 @@
 package com.jundaai.note.repository;
 
+import java.util.Optional;
+
 import com.jundaai.note.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
@@ -16,5 +17,4 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     @Query(value = "select t from Tag t where t.name = ?1")
     Tag getByName(String tagName);
-
 }

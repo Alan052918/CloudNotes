@@ -1,5 +1,9 @@
 package com.jundaai.note.config;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
@@ -11,9 +15,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @Slf4j
@@ -21,8 +22,8 @@ public class LoadDatabase {
 
     @Bean
     CommandLineRunner initDatabase(FolderRepository folderRepository,
-            NoteRepository noteRepository,
-            TagRepository tagRepository) {
+                                   NoteRepository noteRepository,
+                                   TagRepository tagRepository) {
         log.info("Loading Database...");
         return args -> {
             ZonedDateTime now = ZonedDateTime.now();
@@ -82,5 +83,4 @@ public class LoadDatabase {
             tagRepository.save(pl);
         };
     }
-
 }

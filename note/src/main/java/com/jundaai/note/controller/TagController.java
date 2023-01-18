@@ -1,5 +1,10 @@
 package com.jundaai.note.controller;
 
+import java.net.URI;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import com.jundaai.note.form.tag.TagCreationForm;
 import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Tag;
@@ -10,12 +15,16 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.List;
 
 @Validated
 @RestController
@@ -57,8 +66,7 @@ public class TagController {
     public ResponseEntity<EntityModel<Tag>> createTag(@Valid @RequestBody TagCreationForm creationForm) {
         log.info("Request to create new tag: {}", creationForm);
         final Tag tag = tagService.createTag(creationForm);
-        final URI uri = MvcUriComponentsBuilder
-                .fromController(TagController.class)
+        final URI uri = MvcUriComponentsBuilder.fromController(TagController.class)
                 .path("tags")
                 .buildAndExpand(tag.getId())
                 .toUri();
@@ -67,7 +75,7 @@ public class TagController {
 
     @PatchMapping(path = "tags/{tagId}")
     public ResponseEntity<EntityModel<Tag>> updateTag(@PathVariable(name = "tagId") Long tagId,
-            @Valid @RequestBody TagUpdateForm updateForm) {
+                                                      @Valid @RequestBody TagUpdateForm updateForm) {
         log.info("Request to update tag by id: {}, form: {}", tagId, updateForm);
         final Tag tag = tagService.updateTagById(tagId, updateForm);
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
@@ -79,5 +87,4 @@ public class TagController {
         tagService.deleteTagById(tagId);
         return ResponseEntity.noContent().build();
     }
-
 }

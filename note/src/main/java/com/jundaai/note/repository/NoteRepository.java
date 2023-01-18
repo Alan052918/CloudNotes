@@ -1,13 +1,14 @@
 package com.jundaai.note.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
-import java.util.Optional;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
@@ -16,5 +17,4 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
     @Query(value = "select n.tags from Note n where n.id = ?1")
     Optional<List<Tag>> findAllTagsById(Long noteId);
-
 }

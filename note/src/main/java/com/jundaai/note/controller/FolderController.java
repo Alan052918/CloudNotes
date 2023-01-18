@@ -1,5 +1,10 @@
 package com.jundaai.note.controller;
 
+import java.net.URI;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import com.jundaai.note.form.folder.FolderCreationForm;
 import com.jundaai.note.form.folder.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
@@ -10,12 +15,16 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.List;
 
 @Validated
 @RestController
@@ -59,17 +68,15 @@ public class FolderController {
             @Valid @RequestBody FolderCreationForm creationForm) {
         log.info("Request to create new folder: {}, parent folder id: {}", creationForm, parentId);
         final Folder folder = folderService.createFolderByParentId(parentId, creationForm);
-        final URI uri = MvcUriComponentsBuilder
-                .fromController(getClass())
+        final URI uri = MvcUriComponentsBuilder.fromController(getClass())
                 .path("{folderId}/subFolders")
-                .buildAndExpand(folder.getId())
-                .toUri();
+                .buildAndExpand(folder.getId()).toUri();
         return ResponseEntity.created(uri).body(folderModelAssembler.toModel(folder));
     }
 
     @PatchMapping(path = "{folderId}")
     public ResponseEntity<EntityModel<Folder>> updateFolderById(@PathVariable(name = "folderId") Long folderId,
-            @Valid @RequestBody FolderUpdateForm updateForm) {
+                                                                @Valid @RequestBody FolderUpdateForm updateForm) {
         log.info("Request to update folder by id: {}, form: {}", folderId, updateForm);
         final Folder folder = folderService.updateFolderById(folderId, updateForm);
         return ResponseEntity.ok(folderModelAssembler.toModel(folder));
@@ -81,5 +88,4 @@ public class FolderController {
         folderService.deleteFolderById(folderId);
         return ResponseEntity.noContent().build();
     }
-
 }
