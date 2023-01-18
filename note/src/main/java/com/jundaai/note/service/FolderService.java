@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.transaction.Transactional;
-
 import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
@@ -16,6 +14,7 @@ import com.jundaai.note.form.folder.FolderUpdateForm;
 import com.jundaai.note.form.folder.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.repository.FolderRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,6 @@
 package com.jundaai.note.form.note;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 
 public record NoteCreationForm(@NotBlank String name, String content) {

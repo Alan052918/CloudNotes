@@ -3,13 +3,12 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.jundaai.note.form.folder.FolderCreationForm;
 import com.jundaai.note.form.folder.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.assembler.FolderModelAssembler;
 import com.jundaai.note.service.FolderService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
