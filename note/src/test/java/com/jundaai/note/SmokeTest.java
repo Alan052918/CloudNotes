@@ -53,5 +53,8 @@ public class SmokeTest {
         assertNotNull(folderRepository);
         assertNotNull(noteRepository);
         assertNotNull(tagRepository);
+
+        // ONLY to cover main() invocation not covered by application tests
+        NoteApplication.main(new String[] {});
     }
 }
