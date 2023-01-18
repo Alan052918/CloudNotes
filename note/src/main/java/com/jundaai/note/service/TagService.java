@@ -4,8 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
@@ -14,6 +12,7 @@ import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

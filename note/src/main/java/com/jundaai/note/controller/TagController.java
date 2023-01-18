@@ -3,13 +3,12 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.jundaai.note.form.tag.TagCreationForm;
 import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.model.assembler.TagModelAssembler;
 import com.jundaai.note.service.TagService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;

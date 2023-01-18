@@ -3,13 +3,12 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import com.jundaai.note.form.note.NoteCreationForm;
 import com.jundaai.note.form.note.NoteUpdateForm;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
 import com.jundaai.note.service.NoteService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
