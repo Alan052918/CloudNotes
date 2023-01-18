@@ -1,5 +1,14 @@
 package com.jundaai.note.model.assembler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.jundaai.note.controller.FolderController;
 import com.jundaai.note.controller.NoteController;
 import com.jundaai.note.model.Folder;
@@ -12,24 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class NoteModelAssemblerTest {
 
-    @Autowired
-    private NoteModelAssembler testModelAssembler;
-
-    private static final Folder folder = Folder
-            .builder()
+    private static final Folder folder = Folder.builder()
             .id(1L)
             .name("root")
             .createdAt(ZonedDateTime.now())
@@ -38,13 +35,14 @@ public class NoteModelAssemblerTest {
             .subFolders(new ArrayList<>())
             .notes(new ArrayList<>())
             .build();
+    @Autowired
+    private NoteModelAssembler testModelAssembler;
 
     @Test
     public void toModel_Success() {
         // given
         ZonedDateTime now = ZonedDateTime.now();
-        Note note = Note
-                .builder()
+        Note note = Note.builder()
                 .id(1L)
                 .name("Note")
                 .createdAt(now)
@@ -52,8 +50,7 @@ public class NoteModelAssemblerTest {
                 .folder(folder)
                 .tags(new ArrayList<>())
                 .build();
-        EntityModel<Note> expectedModel = EntityModel.of(
-                note,
+        EntityModel<Note> expectedModel = EntityModel.of(note,
                 linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel(),
                 linkTo(methodOn(FolderController.class).getFolderById(note.getFolder().getId())).withRel("folder"),
                 linkTo(methodOn(NoteController.class).getAllNotes()).withRel("all notes"));
@@ -69,8 +66,7 @@ public class NoteModelAssemblerTest {
     public void toCollectionModel_Success() {
         // given
         ZonedDateTime now = ZonedDateTime.now();
-        Note note1 = Note
-                .builder()
+        Note note1 = Note.builder()
                 .id(1L)
                 .name("Note")
                 .createdAt(now)
@@ -78,8 +74,7 @@ public class NoteModelAssemblerTest {
                 .folder(folder)
                 .tags(new ArrayList<>())
                 .build();
-        Note note2 = Note
-                .builder()
+        Note note2 = Note.builder()
                 .id(2L)
                 .name("Another note")
                 .createdAt(now)
@@ -88,10 +83,8 @@ public class NoteModelAssemblerTest {
                 .tags(new ArrayList<>())
                 .build();
         List<Note> notes = List.of(note1, note2);
-        CollectionModel<EntityModel<Note>> expectedModel = notes
-                .stream()
-                .map(note -> EntityModel.of(
-                        note,
+        CollectionModel<EntityModel<Note>> expectedModel = notes.stream()
+                .map(note -> EntityModel.of(note,
                         linkTo(methodOn(NoteController.class).getNoteById(note.getId())).withSelfRel(),
                         linkTo(methodOn(FolderController.class).getFolderById(note.getFolder().getId()))
                                 .withRel("folder"),
@@ -104,5 +97,4 @@ public class NoteModelAssemblerTest {
         // then
         assertEquals(expectedModel, gotModel);
     }
-
 }

@@ -1,5 +1,10 @@
 package com.jundaai.note.controller;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,19 +19,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
 public class ControllerTest {
 
+    static final String BASE_PATH = "http://localhost/api/v1";
+    static final String FOLDER_PATH = "/folders";
+    static final String NOTE_PATH = "/notes";
+    static final String TAG_PATH = "/tags";
     MockMvc mockMvc;
-
     ObjectMapper mapper;
     ListAppender<ILoggingEvent> loggingEventListAppender;
-
     List<Folder> mockFolders;
     List<Note> mockNotes;
     List<Tag> mockTags;
@@ -34,15 +37,9 @@ public class ControllerTest {
     List<Long> mockNoteIds;
     List<Long> mockTagIds;
 
-    static final String BASE_PATH = "http://localhost/api/v1";
-    static final String FOLDER_PATH = "/folders";
-    static final String NOTE_PATH = "/notes";
-    static final String TAG_PATH = "/tags";
-
     @BeforeEach
     void setUp() {
-        mapper = JsonMapper
-                .builder()
+        mapper = JsonMapper.builder()
                 .addModule(new JavaTimeModule())
                 .build();
         loggingEventListAppender = new ListAppender<>();
@@ -56,8 +53,7 @@ public class ControllerTest {
 
     void loadFoldersNotesAndTags() {
         ZonedDateTime now = ZonedDateTime.now();
-        Folder root = Folder
-                .builder()
+        Folder root = Folder.builder()
                 .id(0L)
                 .name("root")
                 .createdAt(now)
@@ -66,8 +62,7 @@ public class ControllerTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Folder pl = Folder
-                .builder()
+        Folder pl = Folder.builder()
                 .id(1L)
                 .name("Programming Languages")
                 .createdAt(now)
@@ -76,8 +71,7 @@ public class ControllerTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Folder ds = Folder
-                .builder()
+        Folder ds = Folder.builder()
                 .id(2L)
                 .name("Data Structures")
                 .createdAt(now)
@@ -86,8 +80,7 @@ public class ControllerTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Note go = Note
-                .builder()
+        Note go = Note.builder()
                 .id(3L)
                 .name("Go")
                 .content("Go is a general purpose programming language.")
@@ -96,16 +89,14 @@ public class ControllerTest {
                 .folder(pl)
                 .tags(new ArrayList<>())
                 .build();
-        Tag google = Tag
-                .builder()
+        Tag google = Tag.builder()
                 .id(4L)
                 .name("Google")
                 .createdAt(now)
                 .updatedAt(now)
                 .notes(new ArrayList<>())
                 .build();
-        Tag microsoft = Tag
-                .builder()
+        Tag microsoft = Tag.builder()
                 .id(5L)
                 .name("Microsoft")
                 .createdAt(now)
@@ -125,16 +116,13 @@ public class ControllerTest {
         mockNotes.add(go);
         mockTags.add(google);
         mockTags.add(microsoft);
-        mockFolderIds = mockFolders
-                .stream()
+        mockFolderIds = mockFolders.stream()
                 .map(Folder::getId)
                 .collect(Collectors.toList());
-        mockNoteIds = mockNotes
-                .stream()
+        mockNoteIds = mockNotes.stream()
                 .map(Note::getId)
                 .collect(Collectors.toList());
-        mockTagIds = mockTags
-                .stream()
+        mockTagIds = mockTags.stream()
                 .map(Tag::getId)
                 .collect(Collectors.toList());
     }
@@ -143,5 +131,4 @@ public class ControllerTest {
     void tearDown() {
 
     }
-
 }

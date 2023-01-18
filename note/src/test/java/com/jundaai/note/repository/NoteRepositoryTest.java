@@ -1,5 +1,13 @@
 package com.jundaai.note.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Tag;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,11 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class NoteRepositoryTest extends RepositoryTest {
@@ -77,5 +80,4 @@ public class NoteRepositoryTest extends RepositoryTest {
         // then
         assertEquals(new ArrayList<>(), gotTags);
     }
-
 }

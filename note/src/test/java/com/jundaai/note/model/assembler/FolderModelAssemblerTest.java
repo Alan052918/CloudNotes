@@ -1,5 +1,14 @@
 package com.jundaai.note.model.assembler;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.jundaai.note.controller.FolderController;
 import com.jundaai.note.model.Folder;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,23 +20,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class FolderModelAssemblerTest {
 
+    List<Folder> mockFolders;
     @Autowired
     private FolderModelAssembler testModelAssembler;
-
-    List<Folder> mockFolders;
 
     @BeforeEach
     void setUp() {
@@ -37,8 +37,7 @@ public class FolderModelAssemblerTest {
 
     void loadFolders() {
         ZonedDateTime now = ZonedDateTime.now();
-        Folder parentFolder = Folder
-                .builder()
+        Folder parentFolder = Folder.builder()
                 .id(1L)
                 .name("Parent Folder")
                 .createdAt(now)
@@ -48,8 +47,7 @@ public class FolderModelAssemblerTest {
                 .notes(new ArrayList<>())
                 .build();
         mockFolders.add(parentFolder);
-        Folder folder = Folder
-                .builder()
+        Folder folder = Folder.builder()
                 .id(2L)
                 .name("Folder")
                 .createdAt(now)
@@ -65,8 +63,7 @@ public class FolderModelAssemblerTest {
     public void toModel_Success() {
         // given
         Folder folder = mockFolders.get(1);
-        EntityModel<Folder> expectedModel = EntityModel.of(
-                folder,
+        EntityModel<Folder> expectedModel = EntityModel.of(folder,
                 linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel(),
                 linkTo(methodOn(FolderController.class).getFolderById(folder.getParentFolder().getId()))
                         .withRel("parent"),
@@ -82,11 +79,9 @@ public class FolderModelAssemblerTest {
     @Test
     public void toCollectionModel_Success() {
         // given
-        CollectionModel<EntityModel<Folder>> expectedModel = mockFolders
-                .stream()
+        CollectionModel<EntityModel<Folder>> expectedModel = mockFolders.stream()
                 .map(folder -> {
-                    EntityModel<Folder> entityModel = EntityModel.of(
-                            folder,
+                    EntityModel<Folder> entityModel = EntityModel.of(folder,
                             linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel());
                     if (folder.getParentFolder() != null) {
                         entityModel.add(
@@ -104,5 +99,4 @@ public class FolderModelAssemblerTest {
         // then
         assertEquals(expectedModel, gotModel);
     }
-
 }

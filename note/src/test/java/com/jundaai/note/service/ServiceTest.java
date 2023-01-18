@@ -1,5 +1,10 @@
 package com.jundaai.note.service;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.jundaai.note.model.Folder;
@@ -14,10 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class ServiceTest {
 
@@ -65,8 +66,7 @@ public abstract class ServiceTest {
 
     void loadFoldersNotesAndTags() {
         ZonedDateTime now = ZonedDateTime.now();
-        Folder root = Folder
-                .builder()
+        Folder root = Folder.builder()
                 .id(0L)
                 .name("root")
                 .createdAt(now)
@@ -75,8 +75,7 @@ public abstract class ServiceTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Folder pl = Folder
-                .builder()
+        Folder pl = Folder.builder()
                 .id(1L)
                 .name("Programming Languages")
                 .createdAt(now)
@@ -85,8 +84,7 @@ public abstract class ServiceTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Folder ds = Folder
-                .builder()
+        Folder ds = Folder.builder()
                 .id(2L)
                 .name("Data Structures")
                 .createdAt(now)
@@ -95,8 +93,7 @@ public abstract class ServiceTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        Note go = Note
-                .builder()
+        Note go = Note.builder()
                 .id(3L)
                 .name("Go")
                 .content("Go is a general purpose programming language.")
@@ -105,16 +102,14 @@ public abstract class ServiceTest {
                 .folder(pl)
                 .tags(new ArrayList<>())
                 .build();
-        Tag google = Tag
-                .builder()
+        Tag google = Tag.builder()
                 .id(4L)
                 .name("Google")
                 .createdAt(now)
                 .updatedAt(now)
                 .notes(new ArrayList<>())
                 .build();
-        Tag microsoft = Tag
-                .builder()
+        Tag microsoft = Tag.builder()
                 .id(5L)
                 .name("Microsoft")
                 .createdAt(now)
@@ -134,16 +129,13 @@ public abstract class ServiceTest {
         mockNotes.add(go);
         mockTags.add(google);
         mockTags.add(microsoft);
-        mockFolderIds = mockFolders
-                .stream()
+        mockFolderIds = mockFolders.stream()
                 .map(Folder::getId)
                 .collect(Collectors.toList());
-        mockNoteIds = mockNotes
-                .stream()
+        mockNoteIds = mockNotes.stream()
                 .map(Note::getId)
                 .collect(Collectors.toList());
-        mockTagIds = mockTags
-                .stream()
+        mockTagIds = mockTags.stream()
                 .map(Tag::getId)
                 .collect(Collectors.toList());
     }
@@ -152,5 +144,4 @@ public abstract class ServiceTest {
     void tearDown() throws Exception {
         autoCloseable.close();
     }
-
 }

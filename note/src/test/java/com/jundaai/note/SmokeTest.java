@@ -1,5 +1,7 @@
 package com.jundaai.note;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.jundaai.note.controller.FolderController;
 import com.jundaai.note.controller.NoteController;
 import com.jundaai.note.controller.TagController;
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 public class SmokeTest {
@@ -53,5 +54,4 @@ public class SmokeTest {
         assertNotNull(noteRepository);
         assertNotNull(tagRepository);
     }
-
 }

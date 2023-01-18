@@ -1,7 +1,23 @@
 package com.jundaai.note.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.jundaai.note.form.folder.FolderCreationForm;
 import com.jundaai.note.form.folder.FolderUpdateForm;
+import com.jundaai.note.form.folder.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.assembler.FolderModelAssembler;
 import com.jundaai.note.service.FolderService;
@@ -17,20 +33,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(FolderController.class)
 public class FolderControllerTest extends ControllerTest {
@@ -45,26 +47,22 @@ public class FolderControllerTest extends ControllerTest {
     void setUp() {
         super.setUp();
         JacksonTester.initFields(this, mapper);
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new FolderController(mockFolderService, mockFolderModelAssembler))
+        mockMvc = MockMvcBuilders.standaloneSetup(new FolderController(mockFolderService, mockFolderModelAssembler))
                 .build();
     }
 
     @Test
     public void getAllFolders_200Ok() throws Exception {
         // given
-        CollectionModel<EntityModel<Folder>> collectionModel = mockFolders
-                .stream()
-                .map(folder -> EntityModel.of(
-                        folder,
+        CollectionModel<EntityModel<Folder>> collectionModel = mockFolders.stream()
+                .map(folder -> EntityModel.of(folder,
                         linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
         when(mockFolderService.getAllFolders()).thenReturn(mockFolders);
         when(mockFolderModelAssembler.toCollectionModel(mockFolders)).thenReturn(collectionModel);
-        mockMvc
-                .perform(get(BASE_PATH + FOLDER_PATH).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get(BASE_PATH + FOLDER_PATH).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2))
@@ -84,15 +82,13 @@ public class FolderControllerTest extends ControllerTest {
         // given
         Long testId = mockFolderIds.get(0);
         Folder testFolder = mockFolders.get(0);
-        EntityModel<Folder> entityModel = EntityModel.of(
-                testFolder,
+        EntityModel<Folder> entityModel = EntityModel.of(testFolder,
                 linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel());
 
         // when, then
         when(mockFolderService.getFolderById(testId)).thenReturn(testFolder);
         when(mockFolderModelAssembler.toModel(testFolder)).thenReturn(entityModel);
-        mockMvc
-                .perform(get(BASE_PATH + FOLDER_PATH + "/" + testId).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get(BASE_PATH + FOLDER_PATH + "/" + testId).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(8))
@@ -108,18 +104,15 @@ public class FolderControllerTest extends ControllerTest {
         // given
         Long testId = mockFolderIds.get(0);
         List<Folder> testFolders = List.of(mockFolders.get(1), mockFolders.get(2));
-        CollectionModel<EntityModel<Folder>> collectionModel = testFolders
-                .stream()
-                .map(folder -> EntityModel.of(
-                        folder,
+        CollectionModel<EntityModel<Folder>> collectionModel = testFolders.stream()
+                .map(folder -> EntityModel.of(folder,
                         linkTo(methodOn(FolderController.class).getFolderById(folder.getId())).withSelfRel()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), CollectionModel::of));
 
         // when, then
         when(mockFolderService.getSubFoldersByParentId(testId)).thenReturn(testFolders);
         when(mockFolderModelAssembler.toCollectionModel(testFolders)).thenReturn(collectionModel);
-        mockMvc
-                .perform(get(BASE_PATH + FOLDER_PATH + "/" + testId + "/subFolders")
+        mockMvc.perform(get(BASE_PATH + FOLDER_PATH + "/" + testId + "/subFolders")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -139,8 +132,7 @@ public class FolderControllerTest extends ControllerTest {
         Long testId = mockFolderIds.get(0);
         Long newId = 100L;
         ZonedDateTime now = ZonedDateTime.now();
-        Folder newFolder = Folder
-                .builder()
+        Folder newFolder = Folder.builder()
                 .id(newId)
                 .name("New Folder")
                 .createdAt(now)
@@ -149,21 +141,14 @@ public class FolderControllerTest extends ControllerTest {
                 .subFolders(new ArrayList<>())
                 .notes(new ArrayList<>())
                 .build();
-        EntityModel<Folder> entityModel = EntityModel.of(
-                newFolder,
+        EntityModel<Folder> entityModel = EntityModel.of(newFolder,
                 linkTo(methodOn(FolderController.class).getFolderById(newId)).withSelfRel());
-        String requestBody = """
-                {
-                    "name": "New Folder"
-                }
-                """;
+        String requestBody = mapper.writeValueAsString(new FolderCreationForm("New Folder"));
 
         // when, then
         when(mockFolderService.createFolderByParentId(eq(testId), any(FolderCreationForm.class))).thenReturn(newFolder);
         when(mockFolderModelAssembler.toModel(newFolder)).thenReturn(entityModel);
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .post(BASE_PATH + FOLDER_PATH + "/" + testId + "/subFolders")
+        mockMvc.perform(MockMvcRequestBuilders.post(BASE_PATH + FOLDER_PATH + "/" + testId + "/subFolders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -187,22 +172,15 @@ public class FolderControllerTest extends ControllerTest {
         ZonedDateTime now = ZonedDateTime.now();
         testFolder.setName("New Name");
         testFolder.setUpdatedAt(now);
-        EntityModel<Folder> entityModel = EntityModel.of(
-                testFolder,
+        EntityModel<Folder> entityModel = EntityModel.of(testFolder,
                 linkTo(methodOn(FolderController.class).getFolderById(testId)).withSelfRel());
-        String requestBody = """
-                {
-                    "updateType": "RENAME_FOLDER",
-                    "newName": "New Name"
-                }
-                """;
+        String requestBody = mapper.writeValueAsString(new FolderUpdateForm(
+                FolderUpdateType.RENAME_FOLDER.toString(), "New Name", null));
 
         // when, then
         when(mockFolderService.updateFolderById(eq(testId), any(FolderUpdateForm.class))).thenReturn(testFolder);
         when(mockFolderModelAssembler.toModel(testFolder)).thenReturn(entityModel);
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .patch(BASE_PATH + FOLDER_PATH + "/" + testId)
+        mockMvc.perform(MockMvcRequestBuilders.patch(BASE_PATH + FOLDER_PATH + "/" + testId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -222,14 +200,11 @@ public class FolderControllerTest extends ControllerTest {
         Long testId = mockFolderIds.get(1);
 
         // when, then
-        mockMvc
-                .perform(MockMvcRequestBuilders
-                        .delete(BASE_PATH + FOLDER_PATH + "/" + testId)
+        mockMvc.perform(MockMvcRequestBuilders.delete(BASE_PATH + FOLDER_PATH + "/" + testId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
 
         verify(mockFolderService).deleteFolderById(testId);
     }
-
 }

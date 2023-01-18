@@ -1,5 +1,16 @@
 package com.jundaai.note.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -8,8 +19,8 @@ import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
 import com.jundaai.note.form.folder.FolderCreationForm;
-import com.jundaai.note.form.folder.FolderOperationType;
 import com.jundaai.note.form.folder.FolderUpdateForm;
+import com.jundaai.note.form.folder.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,11 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FolderServiceTest extends ServiceTest {
@@ -117,10 +123,7 @@ public class FolderServiceTest extends ServiceTest {
         // given
         String testName = "Test Folder";
         Long testParentId = mockFolderIds.get(0);
-        FolderCreationForm testForm = FolderCreationForm
-                .builder()
-                .name(testName)
-                .build();
+        FolderCreationForm testForm = new FolderCreationForm(testName);
 
         // when
         when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
@@ -138,10 +141,7 @@ public class FolderServiceTest extends ServiceTest {
     public void createFolderByParentId_NotExistingParentId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        FolderCreationForm testForm = FolderCreationForm
-                .builder()
-                .name("Test Name")
-                .build();
+        FolderCreationForm testForm = new FolderCreationForm("Test Name");
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -161,19 +161,10 @@ public class FolderServiceTest extends ServiceTest {
         String conflictingFolderName = "Java";
         Long testParentId = mockFolderIds.get(0);
         Folder testParent = mockFolders.get(0);
-        FolderCreationForm testForm1 = FolderCreationForm
-                .builder()
-                .name(preservedRootName)
-                .build();
-        FolderCreationForm testForm2 = FolderCreationForm
-                .builder()
-                .name(blankFolderName)
-                .build();
-        FolderCreationForm testForm3 = FolderCreationForm
-                .builder()
-                .name(conflictingFolderName)
-                .build();
-        String expectedMessage1 = "Root folder is preserved, " + FolderOperationType.CREATE_FOLDER + " failed.";
+        FolderCreationForm testForm1 = new FolderCreationForm(preservedRootName);
+        FolderCreationForm testForm2 = new FolderCreationForm(blankFolderName);
+        FolderCreationForm testForm3 = new FolderCreationForm(conflictingFolderName);
+        String expectedMessage1 = "Root folder is preserved, Create folder named 'root' failed.";
         String expectedMessage2 = "Folder name cannot be blank (null or all whitespaces).";
         String expectedMessage3 = "Folder name: " + conflictingFolderName +
                 " conflicts with an existing folder under the same parent.";
@@ -202,11 +193,8 @@ public class FolderServiceTest extends ServiceTest {
         // given
         String newName = "New Name";
         Long testId = mockFolderIds.get(1);
-        FolderUpdateForm testRenameForm = FolderUpdateForm
-                .builder()
-                .updateType("RENAME_FOLDER")
-                .newName(newName)
-                .build();
+        FolderUpdateForm testRenameForm =
+                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), newName, null);
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
@@ -225,11 +213,8 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(2);
         Long testToParentId = mockFolderIds.get(1);
-        FolderUpdateForm testMoveForm = FolderUpdateForm
-                .builder()
-                .updateType("MOVE_FOLDER")
-                .toParentId(testToParentId)
-                .build();
+        FolderUpdateForm testMoveForm =
+                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testToParentId);
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(2)));
@@ -255,11 +240,8 @@ public class FolderServiceTest extends ServiceTest {
     public void updateFolderById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        FolderUpdateForm testForm = FolderUpdateForm
-                .builder()
-                .updateType("RENAME_FOLDER")
-                .newName("New Name")
-                .build();
+        FolderUpdateForm testForm =
+                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), "New Name", null);
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -278,32 +260,24 @@ public class FolderServiceTest extends ServiceTest {
         String conflictingFolderName = "Java";
         Long rootId = mockFolderIds.get(0);
         Long testId = mockFolderIds.get(1);
-        FolderUpdateForm testForm1 = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.RENAME_FOLDER)
-                .newName(preservedRootName)
-                .build();
-        FolderUpdateForm testForm2 = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.RENAME_FOLDER)
-                .newName(blankFolderName)
-                .build();
-        FolderUpdateForm testForm3 = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.RENAME_FOLDER)
-                .newName(conflictingFolderName)
-                .build();
-        String expectedMessage1 = "Root folder is preserved, " + null + " failed.";
-        String expectedMessage2 = "Root folder is preserved, " + FolderOperationType.RENAME_FOLDER + " failed.";
-        String expectedMessage3 = "Folder name cannot be blank (null or all whitespaces).";
-        String expectedMessage4 = "Folder name: " + conflictingFolderName +
+        FolderUpdateForm testForm1 =
+                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), preservedRootName, null);
+        FolderUpdateForm testForm2 =
+                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), blankFolderName, null);
+        FolderUpdateForm testForm3 =
+                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), conflictingFolderName, null);
+        String expectedMessage1 = "Root folder is preserved, " + FolderUpdateType.RENAME_FOLDER + " failed.";
+        String expectedMessage2 = "Folder name cannot be blank (null or all whitespaces).";
+        String expectedMessage3 = "Folder name: " + conflictingFolderName +
                 " conflicts with an existing folder under the same parent.";
 
         // when
+        // root folder cannot be renamed
         when(mockFolderRepository.findById(rootId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
         Exception exception1 = assertThrows(RootPreservationException.class,
-                () -> testService.updateFolderById(rootId, FolderUpdateForm.builder().build()));
+                () -> testService.updateFolderById(rootId, testForm1));
 
+        // other folders cannot be named "root"
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         Exception exception2 = assertThrows(RootPreservationException.class,
                 () -> testService.updateFolderById(testId, testForm1));
@@ -321,9 +295,9 @@ public class FolderServiceTest extends ServiceTest {
         verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0));
 
         assertEquals(expectedMessage1, exception1.getMessage());
-        assertEquals(expectedMessage2, exception2.getMessage());
-        assertEquals(expectedMessage3, exception3.getMessage());
-        assertEquals(expectedMessage4, exception4.getMessage());
+        assertEquals(expectedMessage1, exception2.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
+        assertEquals(expectedMessage3, exception4.getMessage());
     }
 
     @Test
@@ -331,11 +305,8 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(1);
         Long notExistingId = -1L;
-        FolderUpdateForm testForm = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.MOVE_FOLDER)
-                .toParentId(notExistingId)
-                .build();
+        FolderUpdateForm testForm =
+                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, notExistingId);
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -352,20 +323,17 @@ public class FolderServiceTest extends ServiceTest {
     public void updateFolderById_UnsupportedFolderOperationType_ExceptionThrown() {
         // given
         Long testId = mockFolderIds.get(1);
-        FolderUpdateForm testForm = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.CREATE_FOLDER)
-                .build();
-        String expectedMessage = "Unsupported folder operation type.";
-
+        String unsupportedOperation = "Unsupported Operation";
+        FolderUpdateForm testForm =
+                new FolderUpdateForm(unsupportedOperation, null, null);
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
-        Exception exception = assertThrows(IllegalArgumentException.class,
+        Exception exception = assertThrows(UnsupportedOperationException.class,
                 () -> testService.updateFolderById(testId, testForm));
 
         // then
         verify(mockFolderRepository).findById(testId);
-        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(unsupportedOperation, exception.getMessage());
     }
 
     @Test
@@ -373,16 +341,9 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(1);
         Long testParentId = mockFolderIds.get(0);
-        FolderUpdateForm testForm1 = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.MOVE_FOLDER)
-                .toParentId(testId)
-                .build();
-        FolderUpdateForm testForm2 = FolderUpdateForm
-                .builder()
-                .updateType(FolderOperationType.MOVE_FOLDER)
-                .toParentId(testParentId)
-                .build();
+        FolderUpdateForm testForm1 = new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testId);
+        FolderUpdateForm testForm2 =
+                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testParentId);
         String expectedMessage1 = "Cannot move folder to self. Abort.";
         String expectedMessage2 = "Destination folder identical as current parent folder. Abort.";
 
@@ -422,7 +383,7 @@ public class FolderServiceTest extends ServiceTest {
         Long notExistingId = -1L;
         Long rootId = mockFolderIds.get(0);
         String expectedMessage1 = "Folder by id: " + notExistingId + " was not found.";
-        String expectedMessage2 = "Root folder is preserved, " + FolderOperationType.DELETE_FOLDER + " failed.";
+        String expectedMessage2 = "Root folder is preserved, Delete root folder failed.";
 
         // when
         Exception exception1 = assertThrows(FolderNotFoundException.class,
@@ -437,5 +398,4 @@ public class FolderServiceTest extends ServiceTest {
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage2, exception2.getMessage());
     }
-
 }

@@ -1,5 +1,10 @@
 package com.jundaai.note.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.jundaai.note.model.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class TagRepositoryTest extends RepositoryTest {
@@ -88,5 +92,4 @@ public class TagRepositoryTest extends RepositoryTest {
         // then
         assertEquals(expectedTag, gotTag);
     }
-
 }
