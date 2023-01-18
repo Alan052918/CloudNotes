@@ -107,8 +107,7 @@ public class TagServiceTest extends ServiceTest {
         String expectedMessage = "Tag by id: " + notExistingId + " was not found.";
 
         // when
-        Exception exception = assertThrows(TagNotFoundException.class,
-                () -> testService.getTagById(notExistingId));
+        Exception exception = assertThrows(TagNotFoundException.class, () -> testService.getTagById(notExistingId));
 
         // then
         verify(mockTagRepository).findById(notExistingId);
@@ -138,23 +137,24 @@ public class TagServiceTest extends ServiceTest {
         // given
         String blankTagName = "";
         String conflictingTagName = "Google";
-        TagCreationForm testForm1 = new TagCreationForm(blankTagName);
-        TagCreationForm testForm2 = new TagCreationForm(conflictingTagName);
+        TagCreationForm testForm1 = new TagCreationForm(null);
+        TagCreationForm testForm2 = new TagCreationForm(blankTagName);
+        TagCreationForm testForm3 = new TagCreationForm(conflictingTagName);
         String expectedMessage1 = "Tag name cannot be null or blank.";
         String expectedMessage2 = "Tag name: " + conflictingTagName + " conflicts with an existing tag.";
 
         // when
-        Exception exception1 = assertThrows(IllegalArgumentException.class,
-                () -> testService.createTag(testForm1));
+        Exception exception1 = assertThrows(IllegalArgumentException.class, () -> testService.createTag(testForm1));
+        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> testService.createTag(testForm2));
 
         when(mockTagRepository.existsByName(conflictingTagName)).thenReturn(true);
-        Exception exception2 = assertThrows(TagNameConflictException.class,
-                () -> testService.createTag(testForm2));
+        Exception exception3 = assertThrows(TagNameConflictException.class, () -> testService.createTag(testForm3));
 
         // then
         verify(mockTagRepository).existsByName(conflictingTagName);
         assertEquals(expectedMessage1, exception1.getMessage());
-        assertEquals(expectedMessage2, exception2.getMessage());
+        assertEquals(expectedMessage1, exception2.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
     }
 
     @Test
@@ -242,8 +242,7 @@ public class TagServiceTest extends ServiceTest {
         String expectedMessage = "Tag by id: " + notExistingId + " was not found.";
 
         // then
-        Exception exception = assertThrows(TagNotFoundException.class,
-                () -> testService.deleteTagById(notExistingId));
+        Exception exception = assertThrows(TagNotFoundException.class, () -> testService.deleteTagById(notExistingId));
 
         // then
         assertEquals(expectedMessage, exception.getMessage());

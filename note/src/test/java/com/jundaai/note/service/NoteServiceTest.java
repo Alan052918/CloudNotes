@@ -145,8 +145,7 @@ public class NoteServiceTest extends ServiceTest {
         String expectedMessage = "Note by id: " + notExistingId + " was not found.";
 
         // when
-        Exception exception = assertThrows(NoteNotFoundException.class,
-                () -> testService.getNoteById(notExistingId));
+        Exception exception = assertThrows(NoteNotFoundException.class, () -> testService.getNoteById(notExistingId));
 
         // then
         verify(mockNoteRepository).findById(notExistingId);
