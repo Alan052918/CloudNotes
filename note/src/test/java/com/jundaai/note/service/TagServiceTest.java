@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,11 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 import ch.qos.logback.classic.Logger;
+import com.jundaai.note.dto.TagOperationForm;
 import com.jundaai.note.exception.NoteNotFoundException;
+import com.jundaai.note.exception.TagNameBlankException;
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.tag.TagCreationForm;
-import com.jundaai.note.form.tag.TagUpdateForm;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,7 +119,7 @@ public class TagServiceTest extends ServiceTest {
     public void createTag_Success() {
         // given
         String testName = "New Tag";
-        TagCreationForm testForm = new TagCreationForm(testName);
+        TagOperationForm testForm = TagOperationForm.builder().name(testName).build();
 
         // when
         when(mockTagRepository.existsByName(testName)).thenReturn(false);
@@ -137,15 +138,15 @@ public class TagServiceTest extends ServiceTest {
         // given
         String blankTagName = "";
         String conflictingTagName = "Google";
-        TagCreationForm testForm1 = new TagCreationForm(null);
-        TagCreationForm testForm2 = new TagCreationForm(blankTagName);
-        TagCreationForm testForm3 = new TagCreationForm(conflictingTagName);
-        String expectedMessage1 = "Tag name cannot be null or blank.";
+        TagOperationForm testForm1 = TagOperationForm.builder().build();
+        TagOperationForm testForm2 = TagOperationForm.builder().name(blankTagName).build();
+        TagOperationForm testForm3 = TagOperationForm.builder().name(conflictingTagName).build();
+        String expectedMessage1 = "Tag name cannot be blank (null or all whitespaces).";
         String expectedMessage2 = "Tag name: " + conflictingTagName + " conflicts with an existing tag.";
 
         // when
-        Exception exception1 = assertThrows(IllegalArgumentException.class, () -> testService.createTag(testForm1));
-        Exception exception2 = assertThrows(IllegalArgumentException.class, () -> testService.createTag(testForm2));
+        Exception exception1 = assertThrows(TagNameBlankException.class, () -> testService.createTag(testForm1));
+        Exception exception2 = assertThrows(TagNameBlankException.class, () -> testService.createTag(testForm2));
 
         when(mockTagRepository.existsByName(conflictingTagName)).thenReturn(true);
         Exception exception3 = assertThrows(TagNameConflictException.class, () -> testService.createTag(testForm3));
@@ -162,7 +163,7 @@ public class TagServiceTest extends ServiceTest {
         // given
         Long testId = mockTagIds.get(0);
         String newName = "New Tag";
-        TagUpdateForm testForm = new TagUpdateForm(newName);
+        TagOperationForm testForm = TagOperationForm.builder().name(newName).build();
 
         // when
         when(mockTagRepository.findById(testId)).thenReturn(Optional.of(mockTags.get(0)));
@@ -186,7 +187,7 @@ public class TagServiceTest extends ServiceTest {
 
         // when
         Exception exception = assertThrows(TagNotFoundException.class,
-                () -> testService.updateTagById(notExistingId, new TagUpdateForm("")));
+                () -> testService.updateTagById(notExistingId, new TagOperationForm("New Tag")));
 
         // then
         assertEquals(expectedMessage, exception.getMessage());
@@ -196,21 +197,30 @@ public class TagServiceTest extends ServiceTest {
     public void updateTagById_InvalidNewName_ExceptionThrown() {
         // given
         Long testId = mockTagIds.get(0);
+        String blankTagName = "";
         String conflictingTagName = "Microsoft";
-        TagUpdateForm testForm = new TagUpdateForm(conflictingTagName);
-        String expectedMessage = "Tag name: " + conflictingTagName + " conflicts with an existing tag.";
+        TagOperationForm testForm1 = TagOperationForm.builder().build();
+        TagOperationForm testForm2 = TagOperationForm.builder().name(blankTagName).build();
+        TagOperationForm testForm3 = TagOperationForm.builder().name(conflictingTagName).build();
+        String expectedMessage1 = "Tag name cannot be blank (null or all whitespaces).";
+        String expectedMessage2 = "Tag name: " + conflictingTagName + " conflicts with an existing tag.";
 
         // when
         when(mockTagRepository.findById(testId)).thenReturn(Optional.of(mockTags.get(0)));
         when(mockTagRepository.existsByName(conflictingTagName)).thenReturn(true);
-        Exception exception = assertThrows(TagNameConflictException.class,
-                () -> testService.updateTagById(testId, testForm));
+        Exception exception1 = assertThrows(TagNameBlankException.class,
+                () -> testService.updateTagById(testId, testForm1));
+        Exception exception2 = assertThrows(TagNameBlankException.class,
+                () -> testService.updateTagById(testId, testForm2));
+        Exception exception3 = assertThrows(TagNameConflictException.class,
+                () -> testService.updateTagById(testId, testForm3));
 
         // then
-        verify(mockTagRepository).findById(testId);
+        verify(mockTagRepository, times(3)).findById(testId);
         verify(mockTagRepository).existsByName(conflictingTagName);
-
-        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(expectedMessage1, exception1.getMessage());
+        assertEquals(expectedMessage1, exception2.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
     }
 
     @Test

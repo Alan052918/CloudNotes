@@ -14,13 +14,13 @@ import java.util.Optional;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.jundaai.note.dto.FolderCreationForm;
+import com.jundaai.note.dto.FolderUpdateForm;
+import com.jundaai.note.dto.FolderUpdateType;
 import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
-import com.jundaai.note.form.folder.FolderCreationForm;
-import com.jundaai.note.form.folder.FolderUpdateForm;
-import com.jundaai.note.form.folder.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,7 +123,7 @@ public class FolderServiceTest extends ServiceTest {
         // given
         String testName = "Test Folder";
         Long testParentId = mockFolderIds.get(0);
-        FolderCreationForm testForm = new FolderCreationForm(testName);
+        FolderCreationForm testForm = FolderCreationForm.builder().name(testName).build();
 
         // when
         when(mockFolderRepository.findById(testParentId)).thenReturn(Optional.ofNullable(mockFolders.get(0)));
@@ -141,7 +141,7 @@ public class FolderServiceTest extends ServiceTest {
     public void createFolderByParentId_NotExistingParentId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        FolderCreationForm testForm = new FolderCreationForm("Test Name");
+        FolderCreationForm testForm = FolderCreationForm.builder().name("Test Name").build();
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -161,9 +161,9 @@ public class FolderServiceTest extends ServiceTest {
         String conflictingFolderName = "Java";
         Long testParentId = mockFolderIds.get(0);
         Folder testParent = mockFolders.get(0);
-        FolderCreationForm testForm1 = new FolderCreationForm(preservedRootName);
-        FolderCreationForm testForm2 = new FolderCreationForm(blankFolderName);
-        FolderCreationForm testForm3 = new FolderCreationForm(conflictingFolderName);
+        FolderCreationForm testForm1 = FolderCreationForm.builder().name(preservedRootName).build();
+        FolderCreationForm testForm2 = FolderCreationForm.builder().name(blankFolderName).build();
+        FolderCreationForm testForm3 = FolderCreationForm.builder().name(conflictingFolderName).build();
         String expectedMessage1 = "Root folder is preserved, Create folder named 'root' failed.";
         String expectedMessage2 = "Folder name cannot be blank (null or all whitespaces).";
         String expectedMessage3 = "Folder name: " + conflictingFolderName +
@@ -193,8 +193,10 @@ public class FolderServiceTest extends ServiceTest {
         // given
         String newName = "New Name";
         Long testId = mockFolderIds.get(1);
-        FolderUpdateForm testRenameForm =
-                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), newName, null);
+        FolderUpdateForm testRenameForm = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName(newName)
+                .build();
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
@@ -213,8 +215,10 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(2);
         Long testToParentId = mockFolderIds.get(1);
-        FolderUpdateForm testMoveForm =
-                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testToParentId);
+        FolderUpdateForm testMoveForm = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.MOVE_FOLDER.name())
+                .toParentId(testToParentId)
+                .build();
 
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(2)));
@@ -240,8 +244,10 @@ public class FolderServiceTest extends ServiceTest {
     public void updateFolderById_NotExistingId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        FolderUpdateForm testForm =
-                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), "New Name", null);
+        FolderUpdateForm testForm = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName("New Name")
+                .build();
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -260,12 +266,18 @@ public class FolderServiceTest extends ServiceTest {
         String conflictingFolderName = "Java";
         Long rootId = mockFolderIds.get(0);
         Long testId = mockFolderIds.get(1);
-        FolderUpdateForm testForm1 =
-                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), preservedRootName, null);
-        FolderUpdateForm testForm2 =
-                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), blankFolderName, null);
-        FolderUpdateForm testForm3 =
-                new FolderUpdateForm(FolderUpdateType.RENAME_FOLDER.toString(), conflictingFolderName, null);
+        FolderUpdateForm testForm1 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName(preservedRootName)
+                .build();
+        FolderUpdateForm testForm2 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName(blankFolderName)
+                .build();
+        FolderUpdateForm testForm3 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName(conflictingFolderName)
+                .build();
         String expectedMessage1 = "Root folder is preserved, " + FolderUpdateType.RENAME_FOLDER + " failed.";
         String expectedMessage2 = "Folder name cannot be blank (null or all whitespaces).";
         String expectedMessage3 = "Folder name: " + conflictingFolderName +
@@ -305,8 +317,10 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(1);
         Long notExistingId = -1L;
-        FolderUpdateForm testForm =
-                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, notExistingId);
+        FolderUpdateForm testForm = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.MOVE_FOLDER.name())
+                .toParentId(notExistingId)
+                .build();
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -324,8 +338,7 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(1);
         String unsupportedOperation = "Unsupported Operation";
-        FolderUpdateForm testForm =
-                new FolderUpdateForm(unsupportedOperation, null, null);
+        FolderUpdateForm testForm = FolderUpdateForm.builder().updateType(unsupportedOperation).build();
         // when
         when(mockFolderRepository.findById(testId)).thenReturn(Optional.ofNullable(mockFolders.get(1)));
         Exception exception = assertThrows(UnsupportedOperationException.class,
@@ -341,9 +354,14 @@ public class FolderServiceTest extends ServiceTest {
         // given
         Long testId = mockFolderIds.get(1);
         Long testParentId = mockFolderIds.get(0);
-        FolderUpdateForm testForm1 = new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testId);
-        FolderUpdateForm testForm2 =
-                new FolderUpdateForm(FolderUpdateType.MOVE_FOLDER.toString(), null, testParentId);
+        FolderUpdateForm testForm1 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.MOVE_FOLDER.name())
+                .toParentId(testId)
+                .build();
+        FolderUpdateForm testForm2 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.MOVE_FOLDER.name())
+                .toParentId(testParentId)
+                .build();
         String expectedMessage1 = "Cannot move folder to self. Abort.";
         String expectedMessage2 = "Destination folder identical as current parent folder. Abort.";
 

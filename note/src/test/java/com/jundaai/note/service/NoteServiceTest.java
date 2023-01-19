@@ -17,14 +17,15 @@ import java.util.Optional;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import com.jundaai.note.dto.NoteCreationForm;
+import com.jundaai.note.dto.NoteUpdateForm;
+import com.jundaai.note.dto.NoteUpdateType;
 import com.jundaai.note.exception.BadRequestException;
 import com.jundaai.note.exception.FolderNotFoundException;
+import com.jundaai.note.exception.NoteNameBlankException;
 import com.jundaai.note.exception.NoteNameConflictException;
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.note.NoteCreationForm;
-import com.jundaai.note.form.note.NoteUpdateForm;
-import com.jundaai.note.form.note.NoteUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
@@ -159,7 +160,10 @@ public class NoteServiceTest extends ServiceTest {
         String testContent = "This is a new note.";
         Long testFolderId = mockFolderIds.get(0);
         Folder testFolder = mockFolders.get(0);
-        NoteCreationForm testForm = new NoteCreationForm(testName, testContent);
+        NoteCreationForm testForm = NoteCreationForm.builder()
+                .name(testName)
+                .content(testContent)
+                .build();
 
         // when
         when(mockFolderRepository.findById(testFolderId)).thenReturn(Optional.of(testFolder));
@@ -179,7 +183,9 @@ public class NoteServiceTest extends ServiceTest {
     public void createNoteByFolderId_NotExistingFolderId_ExceptionThrown() {
         // given
         Long notExistingId = -1L;
-        NoteCreationForm testForm = new NoteCreationForm("", "");
+        NoteCreationForm testForm = NoteCreationForm.builder()
+                .name("Note Name")
+                .build();
         String expectedMessage = "Folder by id: " + notExistingId + " was not found.";
 
         // when
@@ -192,25 +198,35 @@ public class NoteServiceTest extends ServiceTest {
     }
 
     @Test
-    public void createNoteByFolderId_ConflictingNoteName_ExceptionThrown() {
+    public void createNoteByFolderId_InvalidNoteName_ExceptionThrown() {
         // given
+        String blankNoteName = "";
         String conflictingNoteName = "Go";
         Long testFolderId = mockFolderIds.get(1);
         Folder testFolder = mockFolders.get(1);
-        NoteCreationForm testForm = new NoteCreationForm(conflictingNoteName, null);
-        String expectedMessage = "Note name: " + conflictingNoteName +
+        NoteCreationForm testForm1 = NoteCreationForm.builder().build();
+        NoteCreationForm testForm2 = NoteCreationForm.builder().name(blankNoteName).build();
+        NoteCreationForm testForm3 = NoteCreationForm.builder().name(conflictingNoteName).build();
+        String expectedMessage1 = "Note name cannot be blank (null or all whitespaces).";
+        String expectedMessage2 = "Note name: " + conflictingNoteName +
                 " conflicts with an existing note under the same folder.";
 
         // when
         when(mockFolderRepository.findById(testFolderId)).thenReturn(Optional.of(testFolder));
         when(mockNoteRepository.existsByNameWithSameFolder(conflictingNoteName, testFolder)).thenReturn(true);
-        Exception exception = assertThrows(NoteNameConflictException.class,
-                () -> testService.createNoteByFolderId(testFolderId, testForm));
+        Exception exception1 = assertThrows(NoteNameBlankException.class,
+                () -> testService.createNoteByFolderId(testFolderId, testForm1));
+        Exception exception2 = assertThrows(NoteNameBlankException.class,
+                () -> testService.createNoteByFolderId(testFolderId, testForm2));
+        Exception exception3 = assertThrows(NoteNameConflictException.class,
+                () -> testService.createNoteByFolderId(testFolderId, testForm3));
 
         // then
-        verify(mockFolderRepository).findById(testFolderId);
+        verify(mockFolderRepository, times(3)).findById(testFolderId);
         verify(mockNoteRepository).existsByNameWithSameFolder(conflictingNoteName, testFolder);
-        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(expectedMessage1, exception1.getMessage());
+        assertEquals(expectedMessage1, exception2.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
     }
 
     @Test
@@ -219,7 +235,10 @@ public class NoteServiceTest extends ServiceTest {
         String newName = "New Name";
         Long testId = mockNoteIds.get(0);
         Folder testFolder = mockFolders.get(1);
-        NoteUpdateForm testForm = new NoteUpdateForm(NoteUpdateType.RENAME_NOTE.toString(), newName, null, null, null);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.RENAME_NOTE.name())
+                .newName(newName)
+                .build();
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
@@ -239,8 +258,10 @@ public class NoteServiceTest extends ServiceTest {
         // given
         String newContent = "New Content";
         Long testId = mockNoteIds.get(0);
-        NoteUpdateForm testForm =
-                new NoteUpdateForm(NoteUpdateType.MODIFY_CONTENT.toString(), null, newContent, null, null);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.MODIFY_CONTENT.name())
+                .newContent(newContent)
+                .build();
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
@@ -259,8 +280,10 @@ public class NoteServiceTest extends ServiceTest {
         // given
         Long testId = mockNoteIds.get(0);
         Long testToFolderId = mockFolderIds.get(0);
-        NoteUpdateForm testForm =
-                new NoteUpdateForm(NoteUpdateType.MOVE_NOTE.toString(), null, null, testToFolderId, null);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.MOVE_NOTE.name())
+                .toFolderId(testToFolderId)
+                .build();
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
@@ -287,7 +310,10 @@ public class NoteServiceTest extends ServiceTest {
     public void updateNoteById_AddNewTag_Success() {
         // given
         String newTagName = "New Tag";
-        NoteUpdateForm testForm = new NoteUpdateForm(NoteUpdateType.ADD_TAG.toString(), null, null, null, newTagName);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.ADD_TAG.name())
+                .tagName(newTagName)
+                .build();
         ZonedDateTime now = ZonedDateTime.now();
         Tag newTag = Tag.builder()
                 .id(5L)
@@ -321,8 +347,10 @@ public class NoteServiceTest extends ServiceTest {
     public void updateNoteById_AddExistingTag_Success() {
         // given
         String existingTagName = "Microsoft";
-        NoteUpdateForm testForm =
-                new NoteUpdateForm(NoteUpdateType.ADD_TAG.toString(), null, null, null, existingTagName);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.ADD_TAG.name())
+                .tagName(existingTagName)
+                .build();
         Tag existingTag = mockTags.get(1);
         Long testId = mockNoteIds.get(0);
         Note testNote = mockNotes.get(0);
@@ -351,7 +379,10 @@ public class NoteServiceTest extends ServiceTest {
     public void updateNoteById_RemoveOldTag_Success() {
         // given
         String oldTagName = "Google";
-        NoteUpdateForm testForm = new NoteUpdateForm(NoteUpdateType.REMOVE_TAG.toString(), null, null, null, oldTagName);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.REMOVE_TAG.name())
+                .tagName(oldTagName)
+                .build();
         Tag oldTag = mockTags.get(0);
         Long testId = mockNoteIds.get(0);
         Note testNote = mockNotes.get(0);
@@ -383,7 +414,7 @@ public class NoteServiceTest extends ServiceTest {
         // when
         Exception exception = assertThrows(NoteNotFoundException.class,
                 () -> testService.updateNoteById(notExistingId,
-                        new NoteUpdateForm(NoteUpdateType.REMOVE_TAG.toString(), null, null, null, null)));
+                        NoteUpdateForm.builder().updateType(NoteUpdateType.REMOVE_TAG.name()).build()));
 
         // then
         verify(mockNoteRepository).findById(notExistingId);
@@ -391,25 +422,42 @@ public class NoteServiceTest extends ServiceTest {
     }
 
     @Test
-    public void updateNoteById_ConflictingNewName_ExceptionThrown() {
+    public void updateNoteById_InvalidNewName_ExceptionThrown() {
         // given
         Long testId = mockNoteIds.get(0);
+        String blankNewName = "";
         String conflictingNewName = "Go";
-        NoteUpdateForm testForm =
-                new NoteUpdateForm(NoteUpdateType.RENAME_NOTE.toString(), conflictingNewName, null, null, null);
-        String expectedMessage = "Note name: " + conflictingNewName +
+        NoteUpdateForm testForm1 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.RENAME_NOTE.name())
+                .build();
+        NoteUpdateForm testForm2 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.RENAME_NOTE.name())
+                .newName(blankNewName)
+                .build();
+        NoteUpdateForm testForm3 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.RENAME_NOTE.name())
+                .newName(conflictingNewName)
+                .build();
+        String expectedMessage1 = "Note name cannot be blank (null or all whitespaces).";
+        String expectedMessage2 = "Note name: " + conflictingNewName +
                 " conflicts with an existing note under the same folder.";
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
         when(mockNoteRepository.existsByNameWithSameFolder(conflictingNewName, mockFolders.get(1))).thenReturn(true);
-        Exception exception = assertThrows(NoteNameConflictException.class,
-                () -> testService.updateNoteById(testId, testForm));
+        Exception exception1 = assertThrows(NoteNameBlankException.class,
+                () -> testService.updateNoteById(testId, testForm1));
+        Exception exception2 = assertThrows(NoteNameBlankException.class,
+                () -> testService.updateNoteById(testId, testForm2));
+        Exception exception3 = assertThrows(NoteNameConflictException.class,
+                () -> testService.updateNoteById(testId, testForm3));
 
         // then
-        verify(mockNoteRepository).findById(testId);
+        verify(mockNoteRepository, times(3)).findById(testId);
         verify(mockNoteRepository).existsByNameWithSameFolder(conflictingNewName, mockFolders.get(1));
-        assertEquals(expectedMessage, exception.getMessage());
+        assertEquals(expectedMessage1, exception1.getMessage());
+        assertEquals(expectedMessage1, exception2.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
     }
 
     @Test
@@ -418,8 +466,10 @@ public class NoteServiceTest extends ServiceTest {
         Long testId = mockNoteIds.get(0);
         Note testNote = mockNotes.get(0);
         String oldContent = testNote.getContent();
-        NoteUpdateForm testForm =
-                new NoteUpdateForm(NoteUpdateType.MODIFY_CONTENT.toString(), null, oldContent, null, null);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.MODIFY_CONTENT.name())
+                .newContent(oldContent)
+                .build();
         String expectedMessage = "New Content identical to the old. Abort.";
 
         // when
@@ -438,9 +488,14 @@ public class NoteServiceTest extends ServiceTest {
         Long testId = mockNoteIds.get(0);
         Long notExistingId = -1L;
         Long testFolderId = mockFolderIds.get(1);
-        NoteUpdateForm testForm1 =
-                new NoteUpdateForm(NoteUpdateType.MOVE_NOTE.toString(), null, null, notExistingId, null);
-        NoteUpdateForm testForm2 = new NoteUpdateForm(NoteUpdateType.MOVE_NOTE.toString(), null, null, testFolderId, null);
+        NoteUpdateForm testForm1 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.MOVE_NOTE.name())
+                .toFolderId(notExistingId)
+                .build();
+        NoteUpdateForm testForm2 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.MOVE_NOTE.name())
+                .toFolderId(testFolderId)
+                .build();
         String expectedMessage1 = "Folder by id: " + notExistingId + " was not found.";
         String expectedMessage2 = "Destination folder identical as current folder. Abort.";
 
@@ -456,7 +511,6 @@ public class NoteServiceTest extends ServiceTest {
         verify(mockNoteRepository, times(2)).findById(testId);
         verify(mockFolderRepository).findById(notExistingId);
         verify(mockFolderRepository).findById(testFolderId);
-
         assertEquals(expectedMessage1, exception.getMessage());
 
         List<ILoggingEvent> loggingEvents = loggingEventListAppender.list;
@@ -469,7 +523,10 @@ public class NoteServiceTest extends ServiceTest {
         // given
         Long testId = mockNoteIds.get(0);
         String oldTagName = "Google";
-        NoteUpdateForm testForm = new NoteUpdateForm(NoteUpdateType.ADD_TAG.toString(), null, null, null, oldTagName);
+        NoteUpdateForm testForm = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.ADD_TAG.name())
+                .tagName(oldTagName)
+                .build();
         String expectedMessage = "Note already contains tag to add. Abort.";
 
         // when
@@ -496,10 +553,14 @@ public class NoteServiceTest extends ServiceTest {
         String notExistingTagName = "Not Exist";
         String testTagName = "Microsoft";
         Tag testTag = mockTags.get(1);
-        NoteUpdateForm testForm1 =
-                new NoteUpdateForm(NoteUpdateType.REMOVE_TAG.toString(), null, null, null, notExistingTagName);
-        NoteUpdateForm testForm2 =
-                new NoteUpdateForm(NoteUpdateType.REMOVE_TAG.toString(), null, null, null, testTagName);
+        NoteUpdateForm testForm1 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.REMOVE_TAG.name())
+                .tagName(notExistingTagName)
+                .build();
+        NoteUpdateForm testForm2 = NoteUpdateForm.builder()
+                .updateType(NoteUpdateType.REMOVE_TAG.name())
+                .tagName(testTagName)
+                .build();
         String expectedMessage1 = "Tag by name: " + notExistingTagName + " was not found.";
         String expectedMessage2 = "Note " + testNote + " has no tag " + testTag;
 
@@ -526,7 +587,7 @@ public class NoteServiceTest extends ServiceTest {
         // given
         Long testId = mockNoteIds.get(0);
         String unsupportedOperation = "Unsupported note update type.";
-        NoteUpdateForm testForm = new NoteUpdateForm(unsupportedOperation, null, null, null, null);
+        NoteUpdateForm testForm = NoteUpdateForm.builder().updateType(unsupportedOperation).build();
 
         // when
         when(mockNoteRepository.findById(testId)).thenReturn(Optional.of(mockNotes.get(0)));
