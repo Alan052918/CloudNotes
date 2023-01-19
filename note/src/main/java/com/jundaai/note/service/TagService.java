@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jundaai.note.exception.NoteNotFoundException;
+import com.jundaai.note.exception.TagNameBlankException;
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.tag.TagCreationForm;
-import com.jundaai.note.form.tag.TagUpdateForm;
+import com.jundaai.note.form.TagOperationForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;
@@ -47,18 +47,15 @@ public class TagService {
     }
 
     @Transactional
-    public Tag createTag(TagCreationForm creationForm) {
+    public Tag createTag(TagOperationForm creationForm) {
         log.info("Create new tag: {}", creationForm);
         String name = creationForm.name();
-
         if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Tag name cannot be null or blank.");
+            throw new TagNameBlankException();
         }
-        boolean existsByName = tagRepository.existsByName(name);
-        if (existsByName) {
+        if (tagRepository.existsByName(name)) {
             throw new TagNameConflictException(name);
         }
-
         ZonedDateTime now = ZonedDateTime.now();
         Tag tag = Tag.builder()
                 .name(name)
@@ -70,17 +67,17 @@ public class TagService {
     }
 
     @Transactional
-    public Tag updateTagById(Long tagId, TagUpdateForm updateForm) {
+    public Tag updateTagById(Long tagId, TagOperationForm updateForm) {
         log.info("Update tag by id: {}, form: {}", tagId, updateForm);
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
-        String newName = updateForm.newName();
-
-        boolean nameConflicted = tagRepository.existsByName(newName);
-        if (nameConflicted) {
+        String newName = updateForm.name();
+        if (newName == null || newName.isBlank()) {
+            throw new TagNameBlankException();
+        }
+        if (tagRepository.existsByName(newName)) {
             throw new TagNameConflictException(newName);
         }
-
         tag.setName(newName);
         tag.setUpdatedAt(ZonedDateTime.now());
         return tagRepository.save(tag);
@@ -91,14 +88,12 @@ public class TagService {
         log.info("Delete tag by id: {}", tagId);
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
-
         tag.getNotes().forEach(note -> {
             List<Tag> noteTags = note.getTags();
             noteTags.remove(tag);
             note.setTags(noteTags);
             noteRepository.save(note);
         });
-
         tagRepository.deleteById(tagId);
     }
 }

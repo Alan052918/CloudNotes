@@ -7,12 +7,13 @@ import java.util.Objects;
 
 import com.jundaai.note.exception.BadRequestException;
 import com.jundaai.note.exception.FolderNotFoundException;
+import com.jundaai.note.exception.NoteNameBlankException;
 import com.jundaai.note.exception.NoteNameConflictException;
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.note.NoteCreationForm;
-import com.jundaai.note.form.note.NoteUpdateForm;
-import com.jundaai.note.form.note.NoteUpdateType;
+import com.jundaai.note.form.NoteCreationForm;
+import com.jundaai.note.form.NoteUpdateForm;
+import com.jundaai.note.form.NoteUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
@@ -66,12 +67,13 @@ public class NoteService {
     @Transactional
     public Note createNoteByFolderId(Long folderId, NoteCreationForm creationForm) {
         log.info("Create new note: {}, folder id: {}", creationForm, folderId);
-
-        String noteName = creationForm.name();
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
-        boolean nameConflicted = noteRepository.existsByNameWithSameFolder(noteName, folder);
-        if (nameConflicted) {
+        String noteName = creationForm.name();
+        if (noteName == null || noteName.isBlank()) {
+            throw new NoteNameBlankException();
+        }
+        if (noteRepository.existsByNameWithSameFolder(noteName, folder)) {
             throw new NoteNameConflictException(noteName);
         }
 
@@ -111,8 +113,10 @@ public class NoteService {
         switch (updateType) {
         case RENAME_NOTE -> {
             String newName = updateForm.newName();
-            boolean nameConflicted = noteRepository.existsByNameWithSameFolder(newName, note.getFolder());
-            if (nameConflicted) {
+            if (newName == null || newName.isBlank()) {
+                throw new NoteNameBlankException();
+            }
+            if (noteRepository.existsByNameWithSameFolder(newName, note.getFolder())) {
                 throw new NoteNameConflictException(newName);
             }
             note.setName(newName);
@@ -152,8 +156,7 @@ public class NoteService {
         case ADD_TAG -> {
             Tag tag;
             String tagName = updateForm.tagName();
-            boolean existsByName = tagRepository.existsByName(tagName);
-            if (existsByName) {
+            if (tagRepository.existsByName(tagName)) {
                 tag = tagRepository.getByName(tagName);
                 if (note.getTags().contains(tag)) {
                     log.error("Note already contains tag to add. Abort.");

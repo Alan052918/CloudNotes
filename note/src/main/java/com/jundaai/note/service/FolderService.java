@@ -9,9 +9,9 @@ import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
-import com.jundaai.note.form.folder.FolderCreationForm;
-import com.jundaai.note.form.folder.FolderUpdateForm;
-import com.jundaai.note.form.folder.FolderUpdateType;
+import com.jundaai.note.form.FolderCreationForm;
+import com.jundaai.note.form.FolderUpdateForm;
+import com.jundaai.note.form.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.repository.FolderRepository;
 import jakarta.transaction.Transactional;
@@ -51,17 +51,16 @@ public class FolderService {
         log.info("Create new folder: {}, parent folder id: {}", folderCreationForm, parentId);
 
         String folderName = folderCreationForm.name();
+        if (folderName == null || folderName.isBlank()) {
+            throw new FolderNameBlankException();
+        }
         if (folderName.equals("root")) {
             throw new RootPreservationException("Create folder named 'root'");
-        }
-        if (folderName.isBlank()) {
-            throw new FolderNameBlankException();
         }
 
         Folder parent = folderRepository.findById(parentId)
                 .orElseThrow(() -> new FolderNotFoundException(parentId));
-        boolean nameConflicted = folderRepository.existsByNameWithSameParent(folderName, parent);
-        if (nameConflicted) {
+        if (folderRepository.existsByNameWithSameParent(folderName, parent)) {
             throw new FolderNameConflictException(folderName);
         }
 
@@ -104,14 +103,13 @@ public class FolderService {
         switch (updateType) {
         case RENAME_FOLDER -> {
             String newName = updateForm.newName();
-            if (newName.equals("root")) {
-                throw new RootPreservationException(FolderUpdateType.RENAME_FOLDER.toString());
-            }
-            if (newName.isBlank()) {
+            if (newName == null || newName.isBlank()) {
                 throw new FolderNameBlankException();
             }
-            boolean nameConflicted = folderRepository.existsByNameWithSameParent(newName, folder.getParentFolder());
-            if (nameConflicted) {
+            if (newName.equals("root")) {
+                throw new RootPreservationException(FolderUpdateType.RENAME_FOLDER.name());
+            }
+            if (folderRepository.existsByNameWithSameParent(newName, folder.getParentFolder())) {
                 throw new FolderNameConflictException(newName);
             }
             folder.setName(newName);
