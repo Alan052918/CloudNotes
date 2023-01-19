@@ -3,8 +3,8 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import com.jundaai.note.form.note.NoteCreationForm;
-import com.jundaai.note.form.note.NoteUpdateForm;
+import com.jundaai.note.dto.NoteCreationForm;
+import com.jundaai.note.dto.NoteUpdateForm;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
 import com.jundaai.note.service.NoteService;
@@ -86,7 +86,7 @@ public class NoteController {
     @PatchMapping(path = "notes/{noteId}")
     public ResponseEntity<EntityModel<Note>> updateNoteById(@PathVariable(name = "noteId") Long noteId,
                                                             @Valid @RequestBody NoteUpdateForm updateForm) {
-        log.info("Request to update note by id: {}, form: {}", noteId, updateForm);
+        log.info("Request to update note by id: {}, dto: {}", noteId, updateForm);
         final Note note = noteService.updateNoteById(noteId, updateForm);
         return ResponseEntity.ok(noteModelAssembler.toModel(note));
     }

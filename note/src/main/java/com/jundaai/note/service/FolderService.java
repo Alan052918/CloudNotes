@@ -9,9 +9,9 @@ import com.jundaai.note.exception.FolderNameBlankException;
 import com.jundaai.note.exception.FolderNameConflictException;
 import com.jundaai.note.exception.FolderNotFoundException;
 import com.jundaai.note.exception.RootPreservationException;
-import com.jundaai.note.form.FolderCreationForm;
-import com.jundaai.note.form.FolderUpdateForm;
-import com.jundaai.note.form.FolderUpdateType;
+import com.jundaai.note.dto.FolderCreationForm;
+import com.jundaai.note.dto.FolderUpdateForm;
+import com.jundaai.note.dto.FolderUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.repository.FolderRepository;
 import jakarta.transaction.Transactional;
@@ -86,7 +86,7 @@ public class FolderService {
 
     @Transactional
     public Folder updateFolderById(Long folderId, FolderUpdateForm updateForm) {
-        log.info("Update folder by id: {}, form: {}", folderId, updateForm);
+        log.info("Update folder by id: {}, dto: {}", folderId, updateForm);
         ZonedDateTime now = ZonedDateTime.now();
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));

@@ -3,8 +3,8 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import com.jundaai.note.form.folder.FolderCreationForm;
-import com.jundaai.note.form.folder.FolderUpdateForm;
+import com.jundaai.note.dto.FolderCreationForm;
+import com.jundaai.note.dto.FolderUpdateForm;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.assembler.FolderModelAssembler;
 import com.jundaai.note.service.FolderService;
@@ -76,7 +76,7 @@ public class FolderController {
     @PatchMapping(path = "{folderId}")
     public ResponseEntity<EntityModel<Folder>> updateFolderById(@PathVariable(name = "folderId") Long folderId,
                                                                 @Valid @RequestBody FolderUpdateForm updateForm) {
-        log.info("Request to update folder by id: {}, form: {}", folderId, updateForm);
+        log.info("Request to update folder by id: {}, dto: {}", folderId, updateForm);
         final Folder folder = folderService.updateFolderById(folderId, updateForm);
         return ResponseEntity.ok(folderModelAssembler.toModel(folder));
     }

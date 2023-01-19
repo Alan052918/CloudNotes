@@ -11,9 +11,9 @@ import com.jundaai.note.exception.NoteNameBlankException;
 import com.jundaai.note.exception.NoteNameConflictException;
 import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.NoteCreationForm;
-import com.jundaai.note.form.NoteUpdateForm;
-import com.jundaai.note.form.NoteUpdateType;
+import com.jundaai.note.dto.NoteCreationForm;
+import com.jundaai.note.dto.NoteUpdateForm;
+import com.jundaai.note.dto.NoteUpdateType;
 import com.jundaai.note.model.Folder;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.Tag;
@@ -99,7 +99,7 @@ public class NoteService {
 
     @Transactional
     public Note updateNoteById(Long noteId, NoteUpdateForm updateForm) {
-        log.info("Update note by id: {}, form: {}", noteId, updateForm);
+        log.info("Update note by id: {}, dto: {}", noteId, updateForm);
         ZonedDateTime now = ZonedDateTime.now();
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException(noteId));

@@ -1,9 +1,11 @@
-package com.jundaai.note.form.note;
+package com.jundaai.note.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
 
-public record NoteUpdateForm(@NotBlank String updateType,
+@Builder
+public record NoteUpdateForm(@NotBlank(message = "note update type cannot be blank.") String updateType,
                              String newName,
                              String newContent,
                              Long toFolderId,

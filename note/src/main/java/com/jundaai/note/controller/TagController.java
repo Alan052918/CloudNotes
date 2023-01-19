@@ -3,8 +3,7 @@ package com.jundaai.note.controller;
 import java.net.URI;
 import java.util.List;
 
-import com.jundaai.note.form.tag.TagCreationForm;
-import com.jundaai.note.form.tag.TagUpdateForm;
+import com.jundaai.note.dto.TagOperationForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.model.assembler.TagModelAssembler;
 import com.jundaai.note.service.TagService;
@@ -62,7 +61,7 @@ public class TagController {
     }
 
     @PostMapping(path = "tags")
-    public ResponseEntity<EntityModel<Tag>> createTag(@Valid @RequestBody TagCreationForm creationForm) {
+    public ResponseEntity<EntityModel<Tag>> createTag(@Valid @RequestBody TagOperationForm creationForm) {
         log.info("Request to create new tag: {}", creationForm);
         final Tag tag = tagService.createTag(creationForm);
         final URI uri = MvcUriComponentsBuilder.fromController(TagController.class)
@@ -74,8 +73,8 @@ public class TagController {
 
     @PatchMapping(path = "tags/{tagId}")
     public ResponseEntity<EntityModel<Tag>> updateTag(@PathVariable(name = "tagId") Long tagId,
-                                                      @Valid @RequestBody TagUpdateForm updateForm) {
-        log.info("Request to update tag by id: {}, form: {}", tagId, updateForm);
+                                                      @Valid @RequestBody TagOperationForm updateForm) {
+        log.info("Request to update tag by id: {}, dto: {}", tagId, updateForm);
         final Tag tag = tagService.updateTagById(tagId, updateForm);
         return ResponseEntity.ok(tagModelAssembler.toModel(tag));
     }

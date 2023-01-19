@@ -8,7 +8,7 @@ import com.jundaai.note.exception.NoteNotFoundException;
 import com.jundaai.note.exception.TagNameBlankException;
 import com.jundaai.note.exception.TagNameConflictException;
 import com.jundaai.note.exception.TagNotFoundException;
-import com.jundaai.note.form.TagOperationForm;
+import com.jundaai.note.dto.TagOperationForm;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.repository.NoteRepository;
 import com.jundaai.note.repository.TagRepository;
@@ -68,7 +68,7 @@ public class TagService {
 
     @Transactional
     public Tag updateTagById(Long tagId, TagOperationForm updateForm) {
-        log.info("Update tag by id: {}, form: {}", tagId, updateForm);
+        log.info("Update tag by id: {}, dto: {}", tagId, updateForm);
         Tag tag = tagRepository.findById(tagId)
                 .orElseThrow(() -> new TagNotFoundException("id: " + tagId));
         String newName = updateForm.name();
