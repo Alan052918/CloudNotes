@@ -14,8 +14,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import com.jundaai.note.form.tag.TagCreationForm;
-import com.jundaai.note.form.tag.TagUpdateForm;
+import com.jundaai.note.dto.TagOperationForm;
+import com.jundaai.note.exception.advice.RestResponseEntityExceptionHandler;
+import com.jundaai.note.exception.advice.ValidationExceptionHandler;
 import com.jundaai.note.model.Tag;
 import com.jundaai.note.model.assembler.TagModelAssembler;
 import com.jundaai.note.service.TagService;
@@ -46,6 +47,7 @@ public class TagControllerTest extends ControllerTest {
         super.setUp();
         JacksonTester.initFields(this, mapper);
         mockMvc = MockMvcBuilders.standaloneSetup(new TagController(mockTagService, mockTagModelAssembler))
+                .setControllerAdvice(RestResponseEntityExceptionHandler.class, ValidationExceptionHandler.class)
                 .build();
     }
 
@@ -131,10 +133,10 @@ public class TagControllerTest extends ControllerTest {
                 .build();
         EntityModel<Tag> entityModel = EntityModel.of(newTag,
                 linkTo(methodOn(TagController.class).getTagById(newId)).withSelfRel());
-        String requestBody = mapper.writeValueAsString(new TagCreationForm("New Tag"));
+        String requestBody = mapper.writeValueAsString(new TagOperationForm("New Tag"));
 
         // when, then
-        when(mockTagService.createTag(any(TagCreationForm.class))).thenReturn(newTag);
+        when(mockTagService.createTag(any(TagOperationForm.class))).thenReturn(newTag);
         when(mockTagModelAssembler.toModel(newTag)).thenReturn(entityModel);
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_PATH + TAG_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +147,7 @@ public class TagControllerTest extends ControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("New Tag"));
 
-        verify(mockTagService).createTag(any(TagCreationForm.class));
+        verify(mockTagService).createTag(any(TagOperationForm.class));
         verify(mockTagModelAssembler).toModel(newTag);
     }
 
@@ -162,10 +164,10 @@ public class TagControllerTest extends ControllerTest {
         testTag.setUpdatedAt(now);
         EntityModel<Tag> entityModel = EntityModel.of(testTag,
                 linkTo(methodOn(TagController.class).getTagById(testId)).withSelfRel());
-        String requestBody = mapper.writeValueAsString(new TagUpdateForm("New Name"));
+        String requestBody = mapper.writeValueAsString(new TagOperationForm("New Name"));
 
         // when, then
-        when(mockTagService.updateTagById(eq(testId), any(TagUpdateForm.class))).thenReturn(testTag);
+        when(mockTagService.updateTagById(eq(testId), any(TagOperationForm.class))).thenReturn(testTag);
         when(mockTagModelAssembler.toModel(testTag)).thenReturn(entityModel);
         mockMvc.perform(MockMvcRequestBuilders.patch(BASE_PATH + TAG_PATH + "/" + testId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -177,7 +179,7 @@ public class TagControllerTest extends ControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("New Name"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.updatedAt").value(now.toEpochSecond()));
 
-        verify(mockTagService).updateTagById(eq(testId), any(TagUpdateForm.class));
+        verify(mockTagService).updateTagById(eq(testId), any(TagOperationForm.class));
         verify(mockTagModelAssembler).toModel(testTag);
     }
 

@@ -14,9 +14,11 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import com.jundaai.note.form.note.NoteCreationForm;
-import com.jundaai.note.form.note.NoteUpdateForm;
-import com.jundaai.note.form.note.NoteUpdateType;
+import com.jundaai.note.dto.NoteCreationForm;
+import com.jundaai.note.dto.NoteUpdateForm;
+import com.jundaai.note.dto.NoteUpdateType;
+import com.jundaai.note.exception.advice.RestResponseEntityExceptionHandler;
+import com.jundaai.note.exception.advice.ValidationExceptionHandler;
 import com.jundaai.note.model.Note;
 import com.jundaai.note.model.assembler.NoteModelAssembler;
 import com.jundaai.note.service.NoteService;
@@ -47,6 +49,7 @@ public class NoteControllerTest extends ControllerTest {
         super.setUp();
         JacksonTester.initFields(this, mapper);
         mockMvc = MockMvcBuilders.standaloneSetup(new NoteController(mockNoteService, mockNoteModelAssembler))
+                .setControllerAdvice(RestResponseEntityExceptionHandler.class, ValidationExceptionHandler.class)
                 .build();
     }
 
@@ -191,7 +194,7 @@ public class NoteControllerTest extends ControllerTest {
         EntityModel<Note> entityModel = EntityModel.of(testNote,
                 linkTo(methodOn(NoteController.class).getNoteById(testId)).withSelfRel());
         String requestBody = mapper.writeValueAsString(new NoteUpdateForm(
-                NoteUpdateType.RENAME_NOTE.toString(), "New Name", null, null, null));
+                NoteUpdateType.RENAME_NOTE.name(), "New Name", null, null, null));
 
         // when, then
         when(mockNoteService.updateNoteById(eq(testId), any(NoteUpdateForm.class))).thenReturn(testNote);
