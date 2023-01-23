@@ -23,3 +23,5 @@ spring:
         format_sql: true
         hbm2ddl:
           auto: update
+  profiles:
+    active: default
