@@ -162,8 +162,9 @@ public class FolderServiceTest extends ServiceTest {
         Long testParentId = mockFolderIds.get(0);
         Folder testParent = mockFolders.get(0);
         FolderCreationForm testForm1 = FolderCreationForm.builder().name(preservedRootName).build();
-        FolderCreationForm testForm2 = FolderCreationForm.builder().name(blankFolderName).build();
-        FolderCreationForm testForm3 = FolderCreationForm.builder().name(conflictingFolderName).build();
+        FolderCreationForm testForm2 = FolderCreationForm.builder().build();
+        FolderCreationForm testForm3 = FolderCreationForm.builder().name(blankFolderName).build();
+        FolderCreationForm testForm4 = FolderCreationForm.builder().name(conflictingFolderName).build();
         String expectedMessage1 = "Root folder is preserved, Create folder named 'root' failed.";
         String expectedMessage2 = "Folder name cannot be blank (null or all whitespaces).";
         String expectedMessage3 = "Folder name: " + conflictingFolderName +
@@ -175,17 +176,20 @@ public class FolderServiceTest extends ServiceTest {
                 () -> testService.createFolderByParentId(testParentId, testForm1));
         Exception exception2 = assertThrows(FolderNameBlankException.class,
                 () -> testService.createFolderByParentId(testParentId, testForm2));
+        Exception exception3 = assertThrows(FolderNameBlankException.class,
+                () -> testService.createFolderByParentId(testParentId, testForm3));
 
         when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0)))
                 .thenReturn(true);
-        Exception exception3 = assertThrows(FolderNameConflictException.class,
-                () -> testService.createFolderByParentId(testParentId, testForm3));
+        Exception exception4 = assertThrows(FolderNameConflictException.class,
+                () -> testService.createFolderByParentId(testParentId, testForm4));
 
         // then
         verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, testParent);
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage2, exception2.getMessage());
-        assertEquals(expectedMessage3, exception3.getMessage());
+        assertEquals(expectedMessage2, exception3.getMessage());
+        assertEquals(expectedMessage3, exception4.getMessage());
     }
 
     @Test
@@ -272,9 +276,12 @@ public class FolderServiceTest extends ServiceTest {
                 .build();
         FolderUpdateForm testForm2 = FolderUpdateForm.builder()
                 .updateType(FolderUpdateType.RENAME_FOLDER.name())
-                .newName(blankFolderName)
                 .build();
         FolderUpdateForm testForm3 = FolderUpdateForm.builder()
+                .updateType(FolderUpdateType.RENAME_FOLDER.name())
+                .newName(blankFolderName)
+                .build();
+        FolderUpdateForm testForm4 = FolderUpdateForm.builder()
                 .updateType(FolderUpdateType.RENAME_FOLDER.name())
                 .newName(conflictingFolderName)
                 .build();
@@ -295,21 +302,24 @@ public class FolderServiceTest extends ServiceTest {
                 () -> testService.updateFolderById(testId, testForm1));
         Exception exception3 = assertThrows(FolderNameBlankException.class,
                 () -> testService.updateFolderById(testId, testForm2));
+        Exception exception4 = assertThrows(FolderNameBlankException.class,
+                () -> testService.updateFolderById(testId, testForm3));
 
         when(mockFolderRepository.existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0)))
                 .thenReturn(true);
-        Exception exception4 = assertThrows(FolderNameConflictException.class,
-                () -> testService.updateFolderById(testId, testForm3));
+        Exception exception5 = assertThrows(FolderNameConflictException.class,
+                () -> testService.updateFolderById(testId, testForm4));
 
         // then
         verify(mockFolderRepository).findById(rootId);
-        verify(mockFolderRepository, times(3)).findById(testId);
+        verify(mockFolderRepository, times(4)).findById(testId);
         verify(mockFolderRepository).existsByNameWithSameParent(conflictingFolderName, mockFolders.get(0));
 
         assertEquals(expectedMessage1, exception1.getMessage());
         assertEquals(expectedMessage1, exception2.getMessage());
         assertEquals(expectedMessage2, exception3.getMessage());
-        assertEquals(expectedMessage3, exception4.getMessage());
+        assertEquals(expectedMessage2, exception4.getMessage());
+        assertEquals(expectedMessage3, exception5.getMessage());
     }
 
     @Test
