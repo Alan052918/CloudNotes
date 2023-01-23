@@ -15,8 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,17 +39,17 @@ public class Note {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @NotNull
+    @Column(nullable = false)
     @Setter(AccessLevel.NONE)
     private ZonedDateTime createdAt;
 
-    @NotNull
+    @Column(nullable = false)
     private ZonedDateTime updatedAt;
 
     @ManyToOne

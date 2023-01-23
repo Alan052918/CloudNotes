@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,8 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,14 +38,14 @@ public class Tag {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    @NotNull
+    @Column(nullable = false)
     @Setter(AccessLevel.NONE)
     private ZonedDateTime createdAt;
 
-    @NotNull
+    @Column(nullable = false)
     private ZonedDateTime updatedAt;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy = "tags")
