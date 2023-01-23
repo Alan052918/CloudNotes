@@ -5,7 +5,7 @@ import lombok.Builder;
 
 
 @Builder
-public record NoteUpdateForm(@NotBlank(message = "note update type cannot be blank.") String updateType,
+public record NoteUpdateForm(@NotBlank(message = "Note update type cannot be blank.") String updateType,
                              String newName,
                              String newContent,
                              Long toFolderId,

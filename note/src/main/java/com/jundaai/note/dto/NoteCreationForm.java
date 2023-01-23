@@ -5,6 +5,6 @@ import lombok.Builder;
 
 
 @Builder
-public record NoteCreationForm(@NotBlank(message = "note name cannot be blank.") String name, String content) {
+public record NoteCreationForm(@NotBlank(message = "Note name cannot be blank.") String name, String content) {
 
 }

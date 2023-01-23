@@ -5,6 +5,6 @@ import lombok.Builder;
 
 
 @Builder
-public record FolderCreationForm(@NotBlank(message = "folder name cannot be blank.") String name) {
+public record FolderCreationForm(@NotBlank(message = "Folder name cannot be blank (null or all whitespaces).") String name) {
 
 }

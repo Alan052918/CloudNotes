@@ -5,7 +5,7 @@ import lombok.Builder;
 
 
 @Builder
-public record FolderUpdateForm(@NotBlank(message = "folder update type cannot be blank.") String updateType,
+public record FolderUpdateForm(@NotBlank(message = "Folder update type cannot be blank.") String updateType,
                                String newName,
                                Long toParentId) {
 
